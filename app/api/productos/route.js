@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
 import Product from "@/models/Product";
 import mongoose from "mongoose";
 
@@ -95,8 +96,30 @@ export async function GET(req) {
 
 export async function POST(req) {
   try {
+    // Verificar autenticación
+    const session = await getServerSession();
+
+    if (!session || !session.user) {
+      return NextResponse.json(
+        { error: 'No autenticado' },
+        { status: 401 }
+      );
+    }
+
+    // Verificar rol
+    const userRole = session.user.role;
+    if (userRole !== 'admin' && userRole !== 'vendedor') {
+      return NextResponse.json(
+        { error: 'No autorizado. Se requiere rol de admin o vendedor' },
+        { status: 403 }
+      );
+    }
+
     await mongoose.connect(process.env.MONGODB_URI);
     const data = await req.json();
+
+    // Auto-asignar el seller desde la sesión
+    data.seller = session.user.id;
 
     const newProduct = await Product.create(data);
     return NextResponse.json(newProduct, { status: 201 });
