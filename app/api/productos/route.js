@@ -9,8 +9,17 @@ export async function GET(req) {
 
     const { searchParams } = new URL(req.url);
 
+    // Verificar si hay sesión (admin o vendedor pueden ver productos ocultos)
+    const session = await getServerSession();
+    const isAdminOrVendor = session && ['admin', 'vendedor'].includes(session.user?.role);
+
     // Construir query de filtros
     const query = { active: true }; // Solo productos activos por defecto
+
+    // Solo mostrar productos visibles si no es admin/vendedor
+    if (!isAdminOrVendor) {
+      query.visible = true;
+    }
 
     // Filtro por categoría
     const category = searchParams.get('category');
