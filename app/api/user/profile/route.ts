@@ -47,59 +47,46 @@ export async function GET() {
         console.error('Error fetching profile:', error);
         return NextResponse.json(
             { error: 'Error al cargar perfil' },
-            { status: 500 }
         );
     }
-}
 
-export async function PATCH(req: Request) {
-    try {
+    const { name, phone, address } = await req.json();
 
+    await mongoose.connect(process.env.MONGODB_URI!);
 
-        if (!session || !session.user?.email) {
-            return NextResponse.json(
-                { error: 'No autorizado' },
-                { status: 401 }
-            );
-        }
+    const updateData: any = {};
+    if (name) updateData.name = name;
+    if (phone !== undefined) updateData.phone = phone;
+    if (address) updateData.address = address;
 
-        const { name, phone, address } = await req.json();
+    const user = await User.findOneAndUpdate(
+        { email: session.user.email },
+        updateData,
+        { new: true }
+    );
 
-        await mongoose.connect(process.env.MONGODB_URI!);
-
-        const updateData: any = {};
-        if (name) updateData.name = name;
-        if (phone !== undefined) updateData.phone = phone;
-        if (address) updateData.address = address;
-
-        const user = await User.findOneAndUpdate(
-            { email: session.user.email },
-            updateData,
-            { new: true }
-        );
-
-        if (!user) {
-            return NextResponse.json(
-                { error: 'Usuario no encontrado' },
-                { status: 404 }
-            );
-        }
-
-        return NextResponse.json({
-            message: 'Perfil actualizado exitosamente',
-            user: {
-                name: user.name,
-                email: user.email,
-                phone: user.phone,
-                address: user.address,
-            }
-        });
-
-    } catch (error) {
-        console.error('Error updating profile:', error);
+    if (!user) {
         return NextResponse.json(
-            { error: 'Error al actualizar perfil' },
-            { status: 500 }
+            { error: 'Usuario no encontrado' },
+            { status: 404 }
         );
     }
+
+    return NextResponse.json({
+        message: 'Perfil actualizado exitosamente',
+        user: {
+            name: user.name,
+            email: user.email,
+            phone: user.phone,
+            address: user.address,
+        }
+    });
+
+} catch (error) {
+    console.error('Error updating profile:', error);
+    return NextResponse.json(
+        { error: 'Error al actualizar perfil' },
+        { status: 500 }
+    );
+}
 }
