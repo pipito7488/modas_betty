@@ -1,7 +1,7 @@
 // app/api/admin/users/route.ts
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { connectDB } from '@/lib/db';
+import mongoose from 'mongoose';
 import User from '@/models/User';
 
 export async function GET() {
@@ -15,7 +15,7 @@ export async function GET() {
             );
         }
 
-        await connectDB();
+        await mongoose.connect(process.env.MONGODB_URI!);
         const users = await User.find({}).select('name email role createdAt').sort({ createdAt: -1 });
 
         return NextResponse.json({ users });

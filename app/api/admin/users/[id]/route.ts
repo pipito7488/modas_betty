@@ -1,7 +1,7 @@
 // app/api/admin/users/[id]/route.ts
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { connectDB } from '@/lib/db';
+import mongoose from 'mongoose';
 import User from '@/models/User';
 
 export async function PATCH(
@@ -18,7 +18,7 @@ export async function PATCH(
             );
         }
 
-        await connectDB();
+        await mongoose.connect(process.env.MONGODB_URI!);
 
         const { role } = await req.json();
 
