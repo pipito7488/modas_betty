@@ -3,8 +3,9 @@ import { getServerSession } from "next-auth";
 import Product from "@/models/Product";
 import mongoose from "mongoose";
 
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export async function GET(req: Request, context: { params: Promise<{ id: string }> }) {
     try {
+        const params = await context.params;
         await mongoose.connect(process.env.MONGODB_URI!);
 
         const product = await Product.findById(params.id).populate('seller', 'name email');
@@ -27,8 +28,9 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
     }
 }
 
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
+export async function PUT(req: Request, context: { params: Promise<{ id: string }> }) {
     try {
+        const params = await context.params;
         // Verificar autenticación
         const session = await getServerSession();
 
@@ -87,8 +89,9 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
     }
 }
 
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(req: Request, context: { params: Promise<{ id: string }> }) {
     try {
+        const params = await context.params;
         // Verificar autenticación
         const session = await getServerSession();
 
