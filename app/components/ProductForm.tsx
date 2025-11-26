@@ -71,7 +71,7 @@ export default function ProductForm({ product, isEdit = false }: ProductFormProp
                 throw new Error(data.error || 'Error al guardar el producto');
             }
 
-            // Red irigir según el rol del usuario
+            // Redirigir según el rol del usuario
             const redirectPath = session?.user?.role === 'admin'
                 ? '/admin/productos'
                 : '/vendedor/productos';
@@ -246,7 +246,7 @@ export default function ProductForm({ product, isEdit = false }: ProductFormProp
                     </button>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                    {formData.colors.map(color => (
+                    {formData.colors.map((color: string) => (
                         <span
                             key={color}
                             className="inline-flex items-center gap-2 px-3 py-1 bg-gray-100 text-gray-700 rounded-full"
