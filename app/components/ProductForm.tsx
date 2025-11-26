@@ -442,7 +442,7 @@ export default function ProductForm({ product, isEdit = false }: ProductFormProp
                 </label>
                 <ImageUpload
                     images={formData.images}
-                    onChange={(images: string[]) => setFormData({ ...formData, images })}
+                    onImagesChange={(images: string[]) => setFormData({ ...formData, images })}
                 />
             </div>
 
