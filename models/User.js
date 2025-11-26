@@ -36,16 +36,73 @@ const userSchema = new mongoose.Schema({
       message: "Formato de teléfono inválido"
     }
   },
-  address: {
-    street: String,
-    city: String,
-    state: String,
+  // Múltiples direcciones (máximo 3)
+  addresses: [{
+    label: {
+      type: String,
+      default: 'Principal'
+    },
+    street: {
+      type: String,
+      required: true
+    },
+    commune: {
+      type: String,
+      required: true
+    },
+    region: {
+      type: String,
+      required: true
+    },
     zipCode: String,
     country: {
       type: String,
-      default: "Argentina"
+      default: 'Chile'
+    },
+    // Coordenadas de geocoding
+    lat: Number,
+    lng: Number,
+    // Tipo y flags
+    isDefault: {
+      type: Boolean,
+      default: false
+    },
+    isStoreLocation: {
+      type: Boolean,
+      default: false
     }
-  },
+  }],
+  // Métodos de pago para vendedores (máximo 3)
+  paymentMethods: [{
+    type: {
+      type: String,
+      enum: ['bank_transfer'],
+      default: 'bank_transfer'
+    },
+    bankName: {
+      type: String,
+      required: true
+    },
+    accountType: {
+      type: String,
+      enum: ['cuenta_corriente', 'cuenta_vista', 'cuenta_rut'],
+      required: true
+    },
+    accountNumber: {
+      type: String,
+      required: true
+    },
+    accountHolder: {
+      type: String,
+      required: true
+    },
+    rut: String, // RUT del titular
+    email: String, // Email opcional
+    isDefault: {
+      type: Boolean,
+      default: false
+    }
+  }],
   emailVerified: Date,
 }, {
   timestamps: true
