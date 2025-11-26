@@ -115,8 +115,8 @@ export async function DELETE(req: Request, context: { params: Promise<{ id: stri
         }
 
         // Verificar permisos
-        const userRole = session.user.role;
-        const userId = session.user.id;
+        const userRole = (session.user as any).role;
+        const userId = (session.user as any).id;
 
         // Admin puede eliminar cualquier producto
         // Vendedor solo puede eliminar sus propios productos
