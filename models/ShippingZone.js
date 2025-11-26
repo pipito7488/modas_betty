@@ -60,7 +60,25 @@ const shippingZoneSchema = new mongoose.Schema({
     enabled: {
         type: Boolean,
         default: true
+    },
+
+    // Configuración de retiro en tienda (pickup)
+    pickupAvailable: {
+        type: Boolean,
+        default: false
+    },
+    pickupCost: {
+        type: Number,
+        default: 0,
+        min: [0, "El costo de pickup no puede ser negativo"]
+    },
+    pickupAddress: {
+        street: String,
+        commune: String,
+        region: String,
+        instructions: String
     }
+
 }, {
     timestamps: true
 });

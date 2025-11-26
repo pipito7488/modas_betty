@@ -24,18 +24,28 @@ const userSchema = new mongoose.Schema({
     enum: ["cliente", "vendedor", "admin"],
     default: "cliente",
   },
-  phone: {
-    type: String,
-    trim: true,
-    validate: {
-      validator: function (v) {
-        // Validar formato de teléfono (opcional)
-        if (!v) return true; // Opcional
-        return /^[\d\s\+\-\(\)]+$/.test(v);
-      },
-      message: "Formato de teléfono inválido"
+  // Teléfonos (obligatorio, máximo 2)
+  phones: [{
+    number: {
+      type: String,
+      required: true,
+      trim: true,
+      validate: {
+        validator: function (v) {
+          return /^[\d\s\+\-\(\)]+$/.test(v);
+        },
+        message: "Formato de teléfono inválido"
+      }
+    },
+    label: {
+      type: String,
+      default: 'Principal'
+    },
+    isDefault: {
+      type: Boolean,
+      default: false
     }
-  },
+  }],
   // Múltiples direcciones (máximo 3)
   addresses: [{
     label: {
@@ -104,9 +114,63 @@ const userSchema = new mongoose.Schema({
     }
   }],
   emailVerified: Date,
+  // Validación de perfil completo
+  profileComplete: {
+    type: Boolean,
+    default: false
+  },
+  canSell: {
+    type: Boolean,
+    default: false
+  },
 }, {
   timestamps: true
 });
+
+// Validación: Máximo 3 direcciones
+userSchema.pre('save', function (next) {
+  if (this.addresses && this.addresses.length > 3) {
+    return next(new Error('Solo puedes tener máximo 3 direcciones'));
+  }
+  next();
+});
+
+// Validación: Máximo 2 teléfonos
+userSchema.pre('save', function (next) {
+  if (this.phones && this.phones.length > 2) {
+    return next(new Error('Solo puedes tener máximo 2 teléfonos'));
+  }
+  next();
+});
+
+// Validación: Máximo 3 métodos de pago
+userSchema.pre('save', function (next) {
+  if (this.paymentMethods && this.paymentMethods.length > 3) {
+    return next(new Error('Solo puedes tener máximo 3 métodos de pago'));
+  }
+  next();
+});
+
+// Método virtual: Verificar si el perfil está completo
+userSchema.methods.isProfileComplete = function () {
+  const hasAddress = this.addresses && this.addresses.length > 0;
+  const hasPhone = this.phones && this.phones.length > 0;
+
+  if (this.role === 'vendedor') {
+    const hasPaymentMethod = this.paymentMethods && this.paymentMethods.length > 0;
+    return hasAddress && hasPhone && hasPaymentMethod;
+  }
+
+  return hasAddress && hasPhone;
+};
+
+// Método virtual: Actualizar flags de perfil completo
+userSchema.pre('save', function (next) {
+  this.profileComplete = this.isProfileComplete();
+  this.canSell = this.role === 'vendedor' && this.profileComplete;
+  next();
+});
+
 
 const User = mongoose.models.User || mongoose.model("User", userSchema);
 

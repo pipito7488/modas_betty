@@ -121,6 +121,10 @@ const orderSchema = new mongoose.Schema({
     accountHolder: String,
     rut: String
   },
+  paymentProof: {
+    imageUrl: String, // URL de Cloudinary
+    uploadedAt: Date
+  },
   paymentConfirmed: {
     type: Boolean,
     default: false
@@ -129,6 +133,12 @@ const orderSchema = new mongoose.Schema({
   paymentConfirmedBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User"
+  },
+
+  // Información de contacto del vendedor
+  vendorContactInfo: {
+    email: String,
+    phones: [String]
   },
 
   // Tracking

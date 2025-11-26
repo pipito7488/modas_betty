@@ -77,6 +77,13 @@ export default function Header() {
                                         Vendedor
                                     </Link>
                                 )}
+                                <Link
+                                    href="/perfil/configuracion"
+                                    className="text-gray-600 hover:text-amber-700 transition-transform hover:scale-110 duration-300"
+                                    title="Mi Perfil"
+                                >
+                                    <User className="w-6 h-6" />
+                                </Link>
                                 <button
                                     onClick={() => signOut()}
                                     className="flex items-center gap-2 text-gray-600 hover:text-red-600 transition-colors font-medium text-sm"
@@ -145,6 +152,14 @@ export default function Header() {
                                         Panel Vendedor
                                     </Link>
                                 )}
+                                <Link
+                                    href="/perfil/configuracion"
+                                    className="text-gray-600 hover:bg-gray-50 px-4 py-3 rounded-lg transition-colors font-medium flex items-center gap-2"
+                                    onClick={() => setMobileMenuOpen(false)}
+                                >
+                                    <User className="w-4 h-4" />
+                                    Mi Perfil
+                                </Link>
                                 <button
                                     onClick={() => {
                                         signOut();
