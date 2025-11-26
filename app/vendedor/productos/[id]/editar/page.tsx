@@ -24,7 +24,7 @@ export default function VendorEditProductPage() {
     }, [status, session, router]);
 
     useEffect(() => {
-        if (params.id && session?.user?.id) {
+        if (params.id && (session?.user as any)?.id) {
             fetchProduct(params.id as string);
         }
     }, [params.id, session]);
@@ -38,7 +38,7 @@ export default function VendorEditProductPage() {
                 const data = await response.json();
 
                 // Verificar que el producto pertenece al vendedor
-                if (data.seller._id !== session?.user?.id) {
+                if (data.seller._id !== (session?.user as any)?.id) {
                     setError('No tienes permiso para editar este producto');
                     return;
                 }

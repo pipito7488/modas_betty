@@ -25,7 +25,7 @@ export default function VendorProductsPage() {
     }, [status, session, router]);
 
     useEffect(() => {
-        if (session?.user?.id) {
+        if ((session?.user as any)?.id) {
             fetchMyProducts();
         }
     }, [session]);
@@ -33,7 +33,7 @@ export default function VendorProductsPage() {
     const fetchMyProducts = async () => {
         setLoading(true);
         try {
-            const response = await fetch(`/api/productos?seller=${session?.user?.id}&limit=100`);
+            const response = await fetch(`/api/productos?seller=${(session?.user as any)?.id}&limit=100`);
             const data = await response.json();
             setProducts(data.products || []);
         } catch (error) {
@@ -210,18 +210,18 @@ export default function VendorProductsPage() {
                                             </td>
                                             <td className="px-6 py-4">
                                                 <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${product.stock === 0
-                                                        ? 'bg-red-100 text-red-800'
-                                                        : product.stock < 10
-                                                            ? 'bg-yellow-100 text-yellow-800'
-                                                            : 'bg-green-100 text-green-800'
+                                                    ? 'bg-red-100 text-red-800'
+                                                    : product.stock < 10
+                                                        ? 'bg-yellow-100 text-yellow-800'
+                                                        : 'bg-green-100 text-green-800'
                                                     }`}>
                                                     {product.stock} unidades
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4">
                                                 <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${product.active
-                                                        ? 'bg-green-100 text-green-800'
-                                                        : 'bg-gray-100 text-gray-800'
+                                                    ? 'bg-green-100 text-green-800'
+                                                    : 'bg-gray-100 text-gray-800'
                                                     }`}>
                                                     {product.active ? 'Activo' : 'Inactivo'}
                                                 </span>
