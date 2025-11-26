@@ -54,8 +54,8 @@ export async function PUT(req: Request, context: { params: Promise<{ id: string 
         }
 
         // Verificar permisos
-        const userRole = session.user.role;
-        const userId = session.user.id;
+        const userRole = (session.user as any).role;
+        const userId = (session.user as any).id;
 
         // Admin puede editar cualquier producto
         // Vendedor solo puede editar sus propios productos
