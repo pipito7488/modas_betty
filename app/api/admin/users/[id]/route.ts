@@ -9,10 +9,14 @@ export async function PATCH(
     { params }: { params: { id: string } }
 ) {
     try {
-        console.log('Updating user role for ID:', params.id);
+        console.log('=== UPDATE USER ROLE DEBUG ===');
+        console.log('Received user ID:', params.id);
+        console.log('ID type:', typeof params.id);
+        console.log('ID length:', params.id.length);
 
         const session = await getServerSession() as any;
-        console.log('Session:', session ? 'Found' : 'Not found', session?.user?.role);
+        console.log('Session found:', !!session);
+        console.log('User role:', session?.user?.role);
 
         if (!session || session.user?.role !== 'admin') {
             console.error('Unauthorized access attempt');
@@ -26,7 +30,7 @@ export async function PATCH(
         console.log('MongoDB connected');
 
         const { role } = await req.json();
-        console.log('New role:', role);
+        console.log('New role requested:', role);
 
         // Validate role
         if (!['cliente', 'vendedor', 'admin'].includes(role)) {
@@ -37,21 +41,37 @@ export async function PATCH(
             );
         }
 
+        // Primero buscar el usuario para ver si existe
+        const existingUser = await User.findById(params.id);
+        console.log('User exists:', !!existingUser);
+        if (existingUser) {
+            console.log('Current user role:', existingUser.role);
+        }
+
+        // Intentar también buscar por email si el ID no funciona
+        if (!existingUser) {
+            console.log('Trying to find all users...');
+            const allUsers = await User.find({});
+            console.log('Total users in DB:', allUsers.length);
+            console.log('User IDs in DB:', allUsers.map(u => ({ id: u._id.toString(), email: u.email })));
+        }
+
         const user = await User.findByIdAndUpdate(
             params.id,
             { role },
             { new: true }
         ).select('name email role');
 
-        console.log('User updated:', user ? 'Success' : 'Not found');
+        console.log('Update result:', user ? 'Success' : 'Failed - User not found');
 
         if (!user) {
             return NextResponse.json(
-                { error: 'Usuario no encontrado' },
+                { error: 'Usuario no encontrado', receivedId: params.id },
                 { status: 404 }
             );
         }
 
+        console.log('=== UPDATE SUCCESSFUL ===');
         return NextResponse.json({ user, message: 'Rol actualizado exitosamente' });
     } catch (error) {
         console.error('Error updating user role:', error);
