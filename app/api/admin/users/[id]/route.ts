@@ -6,9 +6,12 @@ import User from '@/models/User';
 
 export async function PATCH(
     req: Request,
-    { params }: { params: { id: string } }
+    context: { params: Promise<{ id: string }> }
 ) {
     try {
+        // En Next.js 16, params es una Promise
+        const params = await context.params;
+
         console.log('=== UPDATE USER ROLE DEBUG ===');
         console.log('Received user ID:', params.id);
         console.log('ID type:', typeof params.id);
