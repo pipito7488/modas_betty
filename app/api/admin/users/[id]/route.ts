@@ -1,6 +1,6 @@
 // app/api/admin/users/[id]/route.ts
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
+import { getServerSession } from '@/lib/auth';
 import mongoose from 'mongoose';
 import User from '@/models/User';
 

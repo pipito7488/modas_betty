@@ -7,7 +7,7 @@ import User from "@/models/User";
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 
-const handler = NextAuth({
+export const authOptions = {
     adapter: MongoDBAdapter(clientPromise),
     providers: [
         GoogleProvider({
@@ -75,6 +75,8 @@ const handler = NextAuth({
     pages: {
         signIn: '/login',
     },
-});
+};
+
+const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST };

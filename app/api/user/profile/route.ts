@@ -1,6 +1,6 @@
 // app/api/user/profile/route.ts
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
+import { getServerSession } from '@/lib/auth';
 import mongoose from 'mongoose';
 import User from '@/models/User';
 
@@ -54,7 +54,7 @@ export async function GET() {
 
 export async function PATCH(req: Request) {
     try {
-        const session = await getServerSession();
+
 
         if (!session || !session.user?.email) {
             return NextResponse.json(
