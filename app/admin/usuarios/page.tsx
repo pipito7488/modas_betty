@@ -60,7 +60,12 @@ export default function UsuariosAdminPage() {
                 body: JSON.stringify({ role: newRole }),
             });
 
-            if (!response.ok) throw new Error('Error al actualizar rol');
+            const data = await response.json();
+
+            if (!response.ok) {
+                // Mostrar el error específico de la API
+                throw new Error(data.error || data.details || `Error ${response.status}: ${response.statusText}`);
+            }
 
             setUsers(users.map(user =>
                 user._id === userId ? { ...user, role: newRole as any } : user
@@ -69,8 +74,9 @@ export default function UsuariosAdminPage() {
             setSuccessMessage(`${userName} ahora es ${newRole}`);
             setTimeout(() => setSuccessMessage(null), 3000);
         } catch (err) {
-            setError('Error al actualizar el rol');
-            console.error(err);
+            const errorMessage = err instanceof Error ? err.message : 'Error desconocido';
+            setError(`Error al actualizar rol: ${errorMessage}`);
+            console.error('Full error:', err);
         } finally {
             setUpdating(null);
         }
