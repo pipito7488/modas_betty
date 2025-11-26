@@ -347,8 +347,8 @@ export default function ProductForm({ product, isEdit = false }: ProductFormProp
                         type="button"
                         onClick={() => setFormData({ ...formData, visible: !formData.visible })}
                         className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${formData.visible
-                                ? 'bg-green-100 text-green-700 hover:bg-green-200'
-                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                            ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                             }`}
                     >
                         {formData.visible ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
@@ -384,8 +384,8 @@ export default function ProductForm({ product, isEdit = false }: ProductFormProp
                             type="button"
                             onClick={() => toggleSize(size)}
                             className={`px-4 py-2 rounded-lg border-2 transition-colors ${formData.sizes.includes(size)
-                                    ? 'border-amber-500 bg-amber-50 text-amber-700'
-                                    : 'border-gray-300 bg-white text-gray-700 hover:border-amber-300'
+                                ? 'border-amber-500 bg-amber-50 text-amber-700'
+                                : 'border-gray-300 bg-white text-gray-700 hover:border-amber-300'
                                 }`}
                         >
                             {size}
@@ -417,7 +417,7 @@ export default function ProductForm({ product, isEdit = false }: ProductFormProp
                     </button>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                    {formData.colors.map((color) => (
+                    {formData.colors.map((color: string) => (
                         <span
                             key={color}
                             className="inline-flex items-center gap-2 px-3 py-1 bg-gray-100 rounded-full"
