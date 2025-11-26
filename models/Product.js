@@ -17,6 +17,43 @@ const ProductSchema = new mongoose.Schema({
     required: [true, 'El precio es requerido'],
     min: [0, 'El precio no puede ser negativo']
   },
+  // Nuevos campos para sistema de precios CLP
+  costPrice: {
+    type: Number,
+    required: [true, 'El precio de costo es requerido'],
+    min: [0, 'El precio de costo no puede ser negativo']
+  },
+  profitPercentage: {
+    type: Number,
+    default: 0,
+    min: [0, 'El porcentaje de ganancia no puede ser negativo'],
+    max: [1000, 'El porcentaje de ganancia no puede exceder 1000%']
+  },
+  // Campos para ofertas/descuentos
+  discountPercentage: {
+    type: Number,
+    default: 0,
+    min: [0, 'El descuento no puede ser negativo'],
+    max: [100, 'El descuento no puede exceder 100%']
+  },
+  discountStartDate: {
+    type: Date,
+    default: null
+  },
+  discountEndDate: {
+    type: Date,
+    default: null
+  },
+  // Control de visibilidad
+  visible: {
+    type: Boolean,
+    default: true
+  },
+  // Fecha de lanzamiento para countdown
+  launchDate: {
+    type: Date,
+    default: null
+  },
   stock: {
     type: Number,
     required: [true, 'El stock es requerido'],
