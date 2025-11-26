@@ -54,7 +54,7 @@ export async function GET() {
 
 export async function PATCH(req: Request) {
     try {
-        const session = await getServerSession();
+        const session = await getServerSession() as any;
 
         if (!session || !session.user?.email) {
             return NextResponse.json(
