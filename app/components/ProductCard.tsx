@@ -1,33 +1,100 @@
 // app/components/ProductCard.tsx
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Heart, ShoppingBag } from 'lucide-react';
+import { Heart, ShoppingBag, Clock } from 'lucide-react';
 
 interface Product {
   _id: string;
   name: string;
   description: string;
   price: number;
+  costPrice?: number;
+  profitPercentage?: number;
+  discountPercentage?: number;
+  discountStartDate?: string;
+  discountEndDate?: string;
+  launchDate?: string;
   stock: number;
   category: string;
   sizes: string[];
   images: string[];
   featured: boolean;
+  visible?: boolean;
 }
 
 interface ProductCardProps {
   product: Product;
 }
 
+// Función para formatear números en CLP
+const formatCLP = (value: number) => {
+  return new Intl.NumberFormat('es-CL', {
+    style: 'currency',
+    currency: 'CLP',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(value);
+};
+
 export default function ProductCard({ product }: ProductCardProps) {
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
+  const [timeLeft, setTimeLeft] = useState<string>('');
 
   const mainImage = product.images?.[0] || '/placeholder-product.jpg';
   const isOutOfStock = product.stock === 0;
+
+  // Calcular si hay oferta activa
+  const now = new Date();
+  const hasActiveDiscount = product.discountPercentage && product.discountPercentage > 0 && (
+    !product.discountStartDate || new Date(product.discountStartDate) <= now
+  ) && (
+      !product.discountEndDate || new Date(product.discountEndDate) >= now
+    );
+
+  // Calcular precios
+  const costPrice = product.costPrice || 0;
+  const profitPercentage = product.profitPercentage || 0;
+  const basePrice = costPrice * (1 + profitPercentage / 100);
+  const finalPrice = product.price;
+
+  // Verificar si hay lanzamiento próximo
+  const hasUpcomingLaunch = product.launchDate && new Date(product.launchDate) > now;
+
+  // Countdown para lanzamiento
+  useEffect(() => {
+    if (!hasUpcomingLaunch) return;
+
+    const updateCountdown = () => {
+      const launch = new Date(product.launchDate!);
+      const diff = launch.getTime() - Date.now();
+
+      if (diff <= 0) {
+        setTimeLeft('');
+        return;
+      }
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+      if (days > 0) {
+        setTimeLeft(`${days}d ${hours}h`);
+      } else if (hours > 0) {
+        setTimeLeft(`${hours}h ${minutes}m`);
+      } else {
+        setTimeLeft(`${minutes}m ${seconds}s`);
+      }
+    };
+
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 1000);
+    return () => clearInterval(interval);
+  }, [hasUpcomingLaunch, product.launchDate]);
 
   return (
     <div className="group relative bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100">
@@ -56,17 +123,33 @@ export default function ProductCard({ product }: ProductCardProps) {
 
         {/* Badges */}
         <div className="absolute top-3 left-3 flex flex-col gap-2">
-          {product.featured && (
+          {/* Badge OFERTA en rojo */}
+          {hasActiveDiscount && (
+            <span className="bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg animate-pulse">
+              OFERTA -{product.discountPercentage}%
+            </span>
+          )}
+
+          {product.featured && !hasActiveDiscount && (
             <span className="bg-amber-700 text-white text-xs font-medium px-3 py-1 rounded-full">
               Destacado
             </span>
           )}
+
           {isOutOfStock && (
             <span className="bg-red-600 text-white text-xs font-medium px-3 py-1 rounded-full">
               Agotado
             </span>
           )}
         </div>
+
+        {/* Countdown para lanzamiento */}
+        {hasUpcomingLaunch && timeLeft && (
+          <div className="absolute bottom-3 left-3 right-3 bg-blue-600 text-white text-xs font-bold px-3 py-2 rounded-lg shadow-lg flex items-center justify-center gap-2">
+            <Clock className="w-4 h-4" />
+            Lanza en: {timeLeft}
+          </div>
+        )}
 
         {/* Botón de Favorito */}
         <button
@@ -102,10 +185,24 @@ export default function ProductCard({ product }: ProductCardProps) {
           )}
         </div>
 
+        {/* Precios */}
         <div className="flex items-baseline justify-between pt-2">
-          <p className="text-xl font-bold text-gray-900">
-            ${product.price.toLocaleString('es-AR')}
-          </p>
+          <div>
+            {hasActiveDiscount ? (
+              <div className="flex flex-col gap-1">
+                <p className="text-sm text-gray-500 line-through">
+                  {formatCLP(basePrice)}
+                </p>
+                <p className="text-xl font-bold text-red-600">
+                  {formatCLP(finalPrice)}
+                </p>
+              </div>
+            ) : (
+              <p className="text-xl font-bold text-gray-900">
+                {formatCLP(finalPrice)}
+              </p>
+            )}
+          </div>
         </div>
 
         {/* Botón de Agregar al Carrito */}
@@ -114,7 +211,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           className={`
             w-full mt-3 py-2.5 text-sm font-medium uppercase tracking-wider
             flex items-center justify-center gap-2
-            transition-all duration-300
+            transition-all duration-300 rounded-lg
             ${isOutOfStock
               ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
               : 'bg-gray-900 text-white hover:bg-amber-700'
