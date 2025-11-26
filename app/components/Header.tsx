@@ -38,75 +38,137 @@ export default function Header() {
                     </Link>
 
                     {/* Desktop Navigation */}
-                    {mobileMenuOpen ? <X className="w-7 h-7" /> : <Menu className="w-7 h-7" />}
-                </button>
+                    <nav className="hidden md:flex items-center gap-10">
+                        {[
+                            { name: 'Productos', href: '/productos' },
+                            { name: 'Nosotros', href: '/about' },
+                            { name: 'Contacto', href: '/contact' },
+                        ].map((item) => (
+                            <Link
+                                key={item.name}
+                                href={item.href}
+                                className="relative text-gray-600 hover:text-amber-700 transition-colors font-medium text-sm uppercase tracking-widest group py-2"
+                            >
+                                {item.name}
+                                <span className="absolute inset-x-0 bottom-0 h-0.5 bg-amber-700 transform scale-x-0 origin-left group-hover:scale-x-100 transition-transform duration-300 ease-out"></span>
+                            </Link>
+                        ))}
+                    </nav>
+
+                    {/* Actions */}
+                    <div className="flex items-center gap-6">
+                        {/* Shopping Cart */}
+                        <Link href="/cart" className="relative text-gray-600 hover:text-amber-700 transition-transform hover:scale-110 duration-300">
+                            <ShoppingCart className="w-6 h-6" />
+                            {/* Badge placeholder - logic to be added */}
+                            {/* <span className="absolute -top-2 -right-2 bg-amber-700 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full">0</span> */}
+                        </Link>
+
+                        {/* User Menu */}
+                        {session ? (
+                            <div className="hidden md:flex items-center gap-4">
+                                {session.user.role === 'admin' && (
+                                    <Link href="/admin" className="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-xs font-bold uppercase tracking-wider hover:bg-gray-200 transition-colors">
+                                        Admin
+                                    </Link>
+                                )}
+                                {session.user.role === 'vendedor' && (
+                                    <Link href="/vendedor" className="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-xs font-bold uppercase tracking-wider hover:bg-gray-200 transition-colors">
+                                        Vendedor
+                                    </Link>
+                                )}
+                                <button
+                                    onClick={() => signOut()}
+                                    className="flex items-center gap-2 text-gray-600 hover:text-red-600 transition-colors font-medium text-sm"
+                                    title="Cerrar Sesión"
+                                >
+                                    <LogOut className="w-5 h-5" />
+                                </button>
+                            </div>
+                        ) : (
+                            <Link
+                                href="/login"
+                                className="hidden md:flex items-center gap-2 px-6 py-2.5 bg-gray-900 text-white text-sm font-medium rounded-full hover:bg-amber-700 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+                            >
+                                <LogIn className="w-4 h-4" />
+                                <span>Ingresar</span>
+                            </Link>
+                        )}
+
+                        {/* Mobile Menu Button */}
+                        <button
+                            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                            className="md:hidden text-gray-700 hover:text-amber-700 transition-transform active:scale-95"
+                        >
+                            {mobileMenuOpen ? <X className="w-7 h-7" /> : <Menu className="w-7 h-7" />}
+                        </button>
+                    </div>
+                </div>
+
+                {/* Mobile Menu */}
+                <div className={`md:hidden overflow-hidden transition-all duration-500 ease-in-out ${mobileMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
+                    <nav className="flex flex-col gap-2 py-4 border-t border-gray-100">
+                        {[
+                            { name: 'Productos', href: '/productos' },
+                            { name: 'Nosotros', href: '/about' },
+                            { name: 'Contacto', href: '/contact' },
+                        ].map((item) => (
+                            <Link
+                                key={item.name}
+                                href={item.href}
+                                className="text-gray-600 hover:text-amber-700 hover:bg-gray-50 px-4 py-3 rounded-lg transition-colors font-medium"
+                                onClick={() => setMobileMenuOpen(false)}
+                            >
+                                {item.name}
+                            </Link>
+                        ))}
+
+                        <div className="h-px bg-gray-100 my-2"></div>
+
+                        {session ? (
+                            <>
+                                {session.user.role === 'admin' && (
+                                    <Link
+                                        href="/admin"
+                                        className="text-amber-700 hover:bg-amber-50 px-4 py-3 rounded-lg transition-colors font-medium"
+                                        onClick={() => setMobileMenuOpen(false)}
+                                    >
+                                        Panel Admin
+                                    </Link>
+                                )}
+                                {session.user.role === 'vendedor' && (
+                                    <Link
+                                        href="/vendedor"
+                                        className="text-amber-700 hover:bg-amber-50 px-4 py-3 rounded-lg transition-colors font-medium"
+                                        onClick={() => setMobileMenuOpen(false)}
+                                    >
+                                        Panel Vendedor
+                                    </Link>
+                                )}
+                                <button
+                                    onClick={() => {
+                                        signOut();
+                                        setMobileMenuOpen(false);
+                                    }}
+                                    className="text-left text-red-600 hover:bg-red-50 px-4 py-3 rounded-lg transition-colors font-medium flex items-center gap-2"
+                                >
+                                    <LogOut className="w-4 h-4" />
+                                    Cerrar Sesión
+                                </button>
+                            </>
+                        ) : (
+                            <Link
+                                href="/login"
+                                className="text-gray-900 hover:bg-gray-100 px-4 py-3 rounded-lg transition-colors font-medium flex items-center gap-2"
+                                onClick={() => setMobileMenuOpen(false)}
+                            >
+                                <LogIn className="w-4 h-4" />
+                                Ingresar
+                            </Link>
+                        )}
+                    </nav>
+                </div>
             </div>
-        </div>
-
-                {/* Mobile Menu */ }
-    <div className={`md:hidden overflow-hidden transition-all duration-500 ease-in-out ${mobileMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
-        <nav className="flex flex-col gap-2 py-4 border-t border-gray-100">
-            {[
-                { name: 'Productos', href: '/productos' },
-                { name: 'Nosotros', href: '/about' },
-                { name: 'Contacto', href: '/contact' },
-            ].map((item) => (
-                <Link
-                    key={item.name}
-                    href={item.href}
-                    className="text-gray-600 hover:text-amber-700 hover:bg-gray-50 px-4 py-3 rounded-lg transition-colors font-medium"
-                    onClick={() => setMobileMenuOpen(false)}
-                >
-                    {item.name}
-                </Link>
-            ))}
-
-            <div className="h-px bg-gray-100 my-2"></div>
-
-            {session ? (
-                <>
-                    {session.user.role === 'admin' && (
-                        <Link
-                            href="/admin"
-                            className="text-amber-700 hover:bg-amber-50 px-4 py-3 rounded-lg transition-colors font-medium"
-                            onClick={() => setMobileMenuOpen(false)}
-                        >
-                            Panel Admin
-                        </Link>
-                    )}
-                    {session.user.role === 'vendedor' && (
-                        <Link
-                            href="/vendedor"
-                            className="text-amber-700 hover:bg-amber-50 px-4 py-3 rounded-lg transition-colors font-medium"
-                            onClick={() => setMobileMenuOpen(false)}
-                        >
-                            Panel Vendedor
-                        </Link>
-                    )}
-                    <button
-                        onClick={() => {
-                            signOut();
-                            setMobileMenuOpen(false);
-                        }}
-                        className="text-left text-red-600 hover:bg-red-50 px-4 py-3 rounded-lg transition-colors font-medium flex items-center gap-2"
-                    >
-                        <LogOut className="w-4 h-4" />
-                        Cerrar Sesión
-                    </button>
-                </>
-            ) : (
-                <Link
-                    href="/login"
-                    className="text-gray-900 hover:bg-gray-100 px-4 py-3 rounded-lg transition-colors font-medium flex items-center gap-2"
-                    onClick={() => setMobileMenuOpen(false)}
-                >
-                    <LogIn className="w-4 h-4" />
-                    Ingresar
-                </Link>
-            )}
-        </nav>
-    </div>
-            </div >
-        </header >
+        </header>
     );
 }
