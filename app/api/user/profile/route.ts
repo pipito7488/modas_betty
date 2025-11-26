@@ -6,7 +6,7 @@ import User from '@/models/User';
 
 export async function GET() {
     try {
-        const session = await getServerSession();
+        const session = await getServerSession() as any;
 
         if (!session || !session.user?.email) {
             return NextResponse.json(
