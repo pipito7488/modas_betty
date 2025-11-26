@@ -1,9 +1,11 @@
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
+import CredentialsProvider from "next-auth/providers/credentials";
 import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
 import clientPromise from "@/lib/mongodbClient";
 import User from "@/models/User";
 import mongoose from "mongoose";
+import bcrypt from "bcrypt";
 
 const handler = NextAuth({
     adapter: MongoDBAdapter(clientPromise),
@@ -12,31 +14,66 @@ const handler = NextAuth({
             clientId: process.env.GOOGLE_CLIENT_ID,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET,
         }),
+        CredentialsProvider({
+            name: "Credentials",
+            credentials: {
+                email: { label: "Email", type: "email" },
+                password: { label: "Password", type: "password" }
+            },
+            async authorize(credentials) {
+                if (!credentials?.email || !credentials?.password) {
+                    throw new Error("Email y contraseña son requeridos");
+                }
+
+                await mongoose.connect(process.env.MONGODB_URI);
+
+                // Buscar usuario e incluir password
+                const user = await User.findOne({ email: credentials.email.toLowerCase() }).select('+password');
+
+                if (!user || !user.password) {
+                    throw new Error("Credenciales inválidas");
+                }
+
+                // Verificar contraseña
+                const isValid = await bcrypt.compare(credentials.password, user.password);
+
+                if (!isValid) {
+                    throw new Error("Credenciales inválidas");
+                }
+
+                return {
+                    id: user._id.toString(),
+                    email: user.email,
+                    name: user.name,
+                    role: user.role,
+                };
+            }
+        }),
     ],
     secret: process.env.NEXTAUTH_SECRET,
+    session: {
+        strategy: "jwt",
+    },
     callbacks: {
-        // Redirigir según el rol después del login
-        async signIn({ user, account, profile }) {
-            return true; // Permite el login
+        async jwt({ token, user }) {
+            if (user) {
+                token.role = user.role;
+                token.id = user.id;
+            }
+            return token;
         },
-        // Se ejecuta al crear o cargar la sesión
-        async session({ session }) {
-            await mongoose.connect(process.env.MONGODB_URI);
-            const user = await User.findOne({ email: session.user.email });
-            session.user.role = user?.role || "cliente";
-            session.user.id = user?._id.toString();
+        async session({ session, token }) {
+            if (token) {
+                await mongoose.connect(process.env.MONGODB_URI);
+                const user = await User.findOne({ email: session.user.email });
+                session.user.role = user?.role || token.role || "cliente";
+                session.user.id = user?._id.toString() || token.id;
+            }
             return session;
         },
     },
     pages: {
         signIn: '/login',
-    },
-    events: {
-        async signIn({ user }) {
-            // Este evento se ejecuta después de un login exitoso
-            // Pero NextAuth no permite redirección directa aquí
-            // La redirección se hará desde el cliente
-        }
     },
 });
 
