@@ -4,25 +4,8 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import { useCart } from '@/app/hooks/useCart';
-import { Trash2, Plus, Minus, ShoppingCart, MapPin, Truck, Store, Train } from 'lucide-react';
-import Image from 'next/image';
-import CompleteProfileModal from '@/app/components/CompleteProfileModal';
-
-interface ShippingOption {
-    type: 'delivery' | 'pickup';
-    name: string;
-    cost: number;
-    estimatedDays: number;
-    address?: any;
-    zoneId: string;
-}
-
-interface VendorShipping {
-    [vendorId: string]: {
-        selected: ShippingOption | null;
-        options: ShippingOption[];
-        loading: boolean;
+options: ShippingOption[];
+loading: boolean;
     };
 }
 
@@ -367,8 +350,8 @@ export default function CartPage() {
                                                         <label
                                                             key={option.id || idx}
                                                             className={`flex items-start justify-between p-3 border-2 rounded-lg cursor-pointer transition ${shippingByVendor[group.vendor._id]?.selected?.id === option.id
-                                                                    ? 'border-amber-700 bg-amber-50'
-                                                                    : 'border-gray-200 hover:border-gray-300'
+                                                                ? 'border-amber-700 bg-amber-50'
+                                                                : 'border-gray-200 hover:border-gray-300'
                                                                 }`}
                                                         >
                                                             <div className="flex items-start gap-3 flex-1">
