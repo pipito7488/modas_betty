@@ -74,9 +74,9 @@ export async function POST(req: Request) {
 
             // Validar que la zona de envío exista y pertenezca al vendedor
             let shippingZone = null;
-            if (shipping.selected.zoneId) {
+            if (shipping.selected.id) {
                 shippingZone = await ShippingZone.findOne({
-                    _id: shipping.selected.zoneId,
+                    _id: shipping.selected.id,
                     vendor: vendorId,
                     enabled: true
                 });
