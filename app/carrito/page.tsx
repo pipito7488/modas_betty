@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { useCart } from '@/app/hooks/useCart';
-import { Trash2, Plus, Minus, ShoppingCart, MapPin, Truck, Store } from 'lucide-react';
+import { Trash2, Plus, Minus, ShoppingCart, MapPin, Truck, Store, Train } from 'lucide-react';
 import Image from 'next/image';
 import CompleteProfileModal from '@/app/components/CompleteProfileModal';
 
@@ -107,8 +107,10 @@ export default function CartPage() {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         vendorId,
-                        commune: userAddress?.commune,
-                        region: userAddress?.region
+                        clientAddress: {
+                            commune: userAddress?.commune,
+                            region: userAddress?.region
+                        }
                     })
                 });
 
@@ -118,8 +120,8 @@ export default function CartPage() {
                     setShippingByVendor(prev => ({
                         ...prev,
                         [vendorId]: {
-                            selected: data.zones?.[0] || null,
-                            options: data.zones || [],
+                            selected: data.options?.[0] || null,
+                            options: data.options || [],
                             loading: false
                         }
                     }));
@@ -350,58 +352,12 @@ export default function CartPage() {
                                         {shippingByVendor[group.vendor._id]?.loading ? (
                                             <p className="text-sm text-gray-600">Calculando opciones...</p>
                                         ) : shippingByVendor[group.vendor._id]?.options.length === 0 ? (
-                                            <p className="text-sm text-gray-600">
-                                                No hay opciones de envío disponibles para tu zona
-                                            </p>
-                                        ) : (
-                                            <div className="space-y-2">
-                                                {shippingByVendor[group.vendor._id]?.options.map((option, idx) => (
-                                                    <label
-                                                        key={idx}
-                                                        className={`flex items-center justify-between p-3 border-2 rounded-lg cursor-pointer transition-all ${shippingByVendor[group.vendor._id]?.selected?.type === option.type
-                                                            ? 'border-amber-700 bg-amber-50'
-                                                            : 'border-gray-200 hover:border-gray-300'
-                                                            }`}
-                                                    >
-                                                        <div className="flex items-center gap-3">
-                                                            <input
-                                                                type="radio"
-                                                                name={`shipping-${group.vendor._id}`}
-                                                                checked={shippingByVendor[group.vendor._id]?.selected?.type === option.type}
-                                                                onChange={() => handleShippingSelection(group.vendor._id, option)}
-                                                                className="w-4 h-4 text-amber-700"
-                                                            />
-                                                            {option.type === 'pickup' ? (
-                                                                <Store className="w-5 h-5 text-gray-600" />
-                                                            ) : (
-                                                                <MapPin className="w-5 h-5 text-gray-600" />
-                                                            )}
-                                                            <div>
-                                                                <p className="text-sm font-medium text-gray-900">{option.name}</p>
-                                                                {option.estimatedDays > 0 && (
-                                                                    <p className="text-xs text-gray-500">
-                                                                        {option.estimatedDays} {option.estimatedDays === 1 ? 'día' : 'días'} hábiles
-                                                                    </p>
-                                                                )}
-                                                            </div>
-                                                        </div>
-                                                        <p className="text-sm font-bold text-gray-900">
-                                                            {option.cost === 0 ? 'Gratis' : `$${option.cost.toLocaleString('es-CL')}`}
-                                                        </p>
-                                                    </label>
-                                                ))}
+                                            <div className="flex justify-between items-center">
+                                                <span className="text-sm font-medium text-gray-700">Subtotal productos:</span>
+                                                <span className="text-base font-bold text-gray-900">
+                                                    ${group.subtotal.toLocaleString('es-CL')}
+                                                </span>
                                             </div>
-                                        )}
-                                    </div>
-
-                                    {/* Subtotal del Vendedor */}
-                                    <div className="px-6 py-4 bg-white border-t border-gray-200">
-                                        <div className="flex justify-between items-center">
-                                            <span className="text-sm font-medium text-gray-700">Subtotal productos:</span>
-                                            <span className="text-base font-bold text-gray-900">
-                                                ${group.subtotal.toLocaleString('es-CL')}
-                                            </span>
-                                        </div>
                                         {shippingByVendor[group.vendor._id]?.selected && (
                                             <div className="flex justify-between items-center mt-2">
                                                 <span className="text-sm font-medium text-gray-700">Envío:</span>
