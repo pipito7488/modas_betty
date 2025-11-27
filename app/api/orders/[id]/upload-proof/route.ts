@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from '@/lib/auth';
 import mongoose from 'mongoose';
 import Order from '@/models/Order';
-import { uploadToCloudinary } from '@/lib/cloudinary';
+import { uploadImage } from '@/lib/cloudinary';
 
 /**
  * POST /api/orders/[id]/upload-proof
@@ -48,12 +48,17 @@ export async function POST(
             );
         }
 
+        // Convertir File a base64
+        const bytes = await file.arrayBuffer();
+        const buffer = Buffer.from(bytes);
+        const base64 = `data:${file.type};base64,${buffer.toString('base64')}`;
+
         // Subir imagen a Cloudinary
-        const imageUrl = await uploadToCloudinary(file, 'payment_proofs');
+        const result = await uploadImage(base64, 'payment_proofs');
 
         // Actualizar orden
         order.paymentProof = {
-            imageUrl,
+            imageUrl: result.url,
             uploadedAt: new Date()
         };
         order.status = 'payment_submitted';
@@ -61,7 +66,7 @@ export async function POST(
 
         return NextResponse.json({
             success: true,
-            imageUrl,
+            imageUrl: result.url,
             message: 'Comprobante subido exitosamente'
         });
 
