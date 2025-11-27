@@ -32,7 +32,7 @@ export async function PUT(req: Request, context: { params: Promise<{ id: string 
     try {
         const params = await context.params;
         // Verificar autenticación
-        const session = await getServerSession();
+        const session = await getServerSession() as any;
 
         if (!session || !session.user) {
             return NextResponse.json(
@@ -93,7 +93,7 @@ export async function DELETE(req: Request, context: { params: Promise<{ id: stri
     try {
         const params = await context.params;
         // Verificar autenticación
-        const session = await getServerSession();
+        const session = await getServerSession() as any;
 
         if (!session || !session.user) {
             return NextResponse.json(
