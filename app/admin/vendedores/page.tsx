@@ -89,6 +89,23 @@ export default function AdminVendorsPage() {
             return;
         }
 
+        // Advertencia amigable para comisiones altas
+        if (commissionValue > 10) {
+            const confirmed = confirm(
+                `⚠️ Advertencia: Comisión del ${commissionValue}%\n\n` +
+                `Una comisión mayor al 10% podría ser excesiva y desmotivar a los vendedores.\n\n` +
+                `Considera:\n` +
+                `• Comisiones típicas: 5-10%\n` +
+                `• Vendedores motivados = más ventas\n` +
+                `• Relación justa = crecimiento sostenible\n\n` +
+                `¿Estás seguro de aplicar ${commissionValue}%?`
+            );
+
+            if (!confirmed) {
+                return;
+            }
+        }
+
         try {
             const response = await fetch(`/api/admin/vendors/${vendorId}`, {
                 method: 'PATCH',
