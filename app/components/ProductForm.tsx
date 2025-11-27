@@ -54,6 +54,7 @@ export default function ProductForm({ product, isEdit = false }: ProductFormProp
     });
 
     const [useVariants, setUseVariants] = useState(product?.variants?.length > 0 || false);
+    const [newColor, setNewColor] = useState('');
 
     // Calcular precio base y precio final
     const costPrice = parseFloat(formData.costPrice) || 0;
