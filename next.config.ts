@@ -1,13 +1,17 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Configuración para permitir imágenes de Unsplash
+  // Configuración para permitir imágenes
   images: {
-    domains: [
-      'images.unsplash.com', // ¡Añade este dominio!
-      // Si tienes otros dominios de imágenes (como Google, Vercel, etc.), agrégalos aquí
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+        pathname: '/**',
+      },
+      // Si tienes otros dominios de imágenes (como Unsplash, Google, Vercel, etc.), agrégalos aquí como remotePatterns
     ],
   },
-  
+
   // Puedes dejar otras configuraciones aquí (como experimental: { turbo: false })
   // ...
 };
