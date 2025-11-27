@@ -4,7 +4,7 @@
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Users, Shield, Store, User as UserIcon, Sparkles, CheckCircle2 } from 'lucide-react';
+import { Users, Shield, Store, User as UserIcon, Sparkles, CheckCircle2, Download } from 'lucide-react';
 
 interface User {
     _id: string;
@@ -12,6 +12,15 @@ interface User {
     email: string;
     role: 'cliente' | 'vendedor' | 'admin';
     createdAt: string;
+    profile?: {
+        phone?: string;
+        addresses?: {
+            street?: string;
+            commune?: string;
+            region?: string;
+            postalCode?: string;
+        }[];
+    };
 }
 
 export default function UsuariosAdminPage() {
@@ -98,6 +107,86 @@ export default function UsuariosAdminPage() {
         }
     };
 
+    const exportToExcel = (filterRole?: string) => {
+        // Filtrar usuarios según el rol
+        const filteredUsers = filterRole
+            ? users.filter(u => u.role === filterRole)
+            : users;
+
+        if (filteredUsers.length === 0) {
+            alert('No hay usuarios para exportar con este filtro');
+            return;
+        }
+
+        // Crear headers
+        const headers = ['Nombre', 'Email', 'Rol', 'Teléfono', 'Dirección', 'Comuna', 'Región', 'Código Postal', 'Fecha Registro'];
+
+        // Crear filas de datos
+        const rows: string[][] = [];
+
+        filteredUsers.forEach(user => {
+            const addresses = user.profile?.addresses || [];
+
+            if (addresses.length === 0) {
+                // Usuario sin dirección
+                rows.push([
+                    user.name,
+                    user.email,
+                    user.role,
+                    user.profile?.phone || '',
+                    '',
+                    '',
+                    '',
+                    '',
+                    new Date(user.createdAt).toLocaleDateString('es-CL')
+                ]);
+            } else {
+                // Usuario con direcciones - crear fila por cada dirección
+                addresses.forEach((addr, index) => {
+                    rows.push([
+                        index === 0 ? user.name : '',
+                        index === 0 ? user.email : '',
+                        index === 0 ? user.role : '',
+                        index === 0 ? (user.profile?.phone || '') : '',
+                        addr.street || '',
+                        addr.commune || '',
+                        addr.region || '',
+                        addr.postalCode || '',
+                        index === 0 ? new Date(user.createdAt).toLocaleDateString('es-CL') : ''
+                    ]);
+                });
+            }
+        });
+
+        // Crear CSV
+        const csvContent = [headers, ...rows]
+            .map(row => row.map(cell => {
+                const cellStr = String(cell);
+                if (cellStr.includes(',') || cellStr.includes('"') || cellStr.includes('\n')) {
+                    return `"${cellStr.replace(/"/g, '""')}"`;
+                }
+                return cellStr;
+            }).join(','))
+            .join('\n');
+
+        // Agregar BOM para UTF-8 (para que Excel reconozca tildes)
+        const BOM = '\uFEFF';
+        const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+
+        // Nombre del archivo según el filtro
+        const roleLabel = filterRole === 'admin' ? 'administradores'
+            : filterRole === 'vendedor' ? 'vendedores'
+                : filterRole === 'cliente' ? 'clientes'
+                    : 'todos-los-usuarios';
+
+        link.download = `usuarios-${roleLabel}-${new Date().toISOString().split('T')[0]}.csv`;
+        link.click();
+        URL.revokeObjectURL(url);
+    };
+
     if (status === 'loading' || loading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-50 via-white to-blue-50">
@@ -127,6 +216,44 @@ export default function UsuariosAdminPage() {
                     <p className="text-gray-600 text-lg">
                         Administra roles y permisos del marketplace
                     </p>
+                </div>
+
+                {/* Export Buttons */}
+                <div className="mb-8 bg-white p-6 rounded-xl shadow-lg border-2 border-gray-100">
+                    <div className="flex items-center justify-between mb-4">
+                        <h2 className="font-semibold text-lg text-gray-900">Exportar Usuarios</h2>
+                        <Download className="w-5 h-5 text-gray-600" />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                        <button
+                            onClick={() => exportToExcel()}
+                            className="flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all shadow-md hover:shadow-lg"
+                        >
+                            <Download className="w-4 h-4" />
+                            <span className="font-medium">Todos</span>
+                        </button>
+                        <button
+                            onClick={() => exportToExcel('admin')}
+                            className="flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-amber-600 to-orange-600 text-white rounded-lg hover:from-amber-700 hover:to-orange-700 transition-all shadow-md hover:shadow-lg"
+                        >
+                            <Download className="w-4 h-4" />
+                            <span className="font-medium">Admins</span>
+                        </button>
+                        <button
+                            onClick={() => exportToExcel('vendedor')}
+                            className="flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-lg hover:from-blue-700 hover:to-cyan-700 transition-all shadow-md hover:shadow-lg"
+                        >
+                            <Download className="w-4 h-4" />
+                            <span className="font-medium">Vendedores</span>
+                        </button>
+                        <button
+                            onClick={() => exportToExcel('cliente')}
+                            className="flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-gray-600 to-slate-600 text-white rounded-lg hover:from-gray-700 hover:to-slate-700 transition-all shadow-md hover:shadow-lg"
+                        >
+                            <Download className="w-4 h-4" />
+                            <span className="font-medium">Clientes</span>
+                        </button>
+                    </div>
                 </div>
 
                 {/* Success Message */}
