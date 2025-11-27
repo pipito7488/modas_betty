@@ -34,6 +34,7 @@ export default function ProductDetailPage() {
     const [selectedColor, setSelectedColor] = useState('');
     const [quantity, setQuantity] = useState(1);
     const [isFavorite, setIsFavorite] = useState(false);
+    const [addingToCart, setAddingToCart] = useState(false);
 
     useEffect(() => {
         if (params.id) {
@@ -70,14 +71,46 @@ export default function ProductDetailPage() {
         }
     };
 
-    const handleAddToCart = () => {
-        // TODO: Implement add to cart functionality
-        console.log('Adding to cart:', {
-            productId: product?._id,
-            size: selectedSize,
-            color: selectedColor,
-            quantity
-        });
+    const handleAddToCart = async () => {
+        if (!selectedSize || !selectedColor) {
+            alert('Por favor selecciona una talla y color');
+            return;
+        }
+
+        setAddingToCart(true);
+
+        try {
+            const response = await fetch('/api/cart', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    productId: product?._id,
+                    quantity,
+                    size: selectedSize,
+                    color: selectedColor
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Error al agregar al carrito');
+            }
+
+            // Mostrar mensaje de éxito
+            alert('✅ Producto agregado al carrito');
+
+            // Opcionalmente redirigir al carrito
+            // window.location.href = '/carrito';
+
+        } catch (error) {
+            console.error('Error adding to cart:', error);
+            alert(error instanceof Error ? error.message : 'Error al agregar al carrito');
+        } finally {
+            setAddingToCart(false);
+        }
     };
 
     if (loading) {
@@ -156,8 +189,8 @@ export default function ProductDetailPage() {
                                         key={index}
                                         onClick={() => setSelectedImage(index)}
                                         className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all ${selectedImage === index
-                                                ? 'border-amber-700'
-                                                : 'border-transparent hover:border-gray-300'
+                                            ? 'border-amber-700'
+                                            : 'border-transparent hover:border-gray-300'
                                             }`}
                                     >
                                         <Image
@@ -211,8 +244,8 @@ export default function ProductDetailPage() {
                                             key={size}
                                             onClick={() => setSelectedSize(size)}
                                             className={`px-6 py-3 border rounded-lg font-medium transition-all ${selectedSize === size
-                                                    ? 'bg-amber-700 text-white border-amber-700'
-                                                    : 'bg-white text-gray-900 border-gray-300 hover:border-amber-700'
+                                                ? 'bg-amber-700 text-white border-amber-700'
+                                                : 'bg-white text-gray-900 border-gray-300 hover:border-amber-700'
                                                 }`}
                                         >
                                             {size}
@@ -234,8 +267,8 @@ export default function ProductDetailPage() {
                                             key={color}
                                             onClick={() => setSelectedColor(color)}
                                             className={`px-6 py-3 border rounded-lg font-medium transition-all ${selectedColor === color
-                                                    ? 'bg-amber-700 text-white border-amber-700'
-                                                    : 'bg-white text-gray-900 border-gray-300 hover:border-amber-700'
+                                                ? 'bg-amber-700 text-white border-amber-700'
+                                                : 'bg-white text-gray-900 border-gray-300 hover:border-amber-700'
                                                 }`}
                                         >
                                             {color}
@@ -268,25 +301,6 @@ export default function ProductDetailPage() {
                                     +
                                 </button>
                             </div>
-                        </div>
-
-                        {/* Add to Cart Button */}
-                        <button
-                            onClick={handleAddToCart}
-                            disabled={isOutOfStock}
-                            className={`w-full py-4 rounded-lg font-semibold uppercase tracking-wider flex items-center justify-center gap-2 transition-all ${isOutOfStock
-                                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                    : 'bg-amber-700 text-white hover:bg-amber-800 shadow-lg hover:shadow-xl'
-                                }`}
-                        >
-                            {isOutOfStock ? (
-                                'Agotado'
-                            ) : (
-                                <>
-                                    <ShoppingBag className="w-5 h-5" />
-                                    Añadir al Carrito
-                                </>
-                            )}
                         </button>
 
                         {/* Product Features */}
