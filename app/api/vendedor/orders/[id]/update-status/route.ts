@@ -10,7 +10,7 @@ import Order from '@/models/Order';
  */
 export async function PATCH(
     req: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         const session = await getServerSession() as any;
@@ -40,9 +40,12 @@ export async function PATCH(
 
         await mongoose.connect(process.env.MONGODB_URI!);
 
+        // Await params (Next.js 16)
+        const { id } = await params;
+
         // Verificar que la orden pertenece al vendedor
         const order = await Order.findOne({
-            _id: params.id,
+            _id: id,
             vendor: session.user.id
         });
 
