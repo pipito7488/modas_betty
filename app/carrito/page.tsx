@@ -352,21 +352,52 @@ export default function CartPage() {
                                         {shippingByVendor[group.vendor._id]?.loading ? (
                                             <p className="text-sm text-gray-600">Calculando opciones...</p>
                                         ) : shippingByVendor[group.vendor._id]?.options.length === 0 ? (
-                                            <div className="flex justify-between items-center">
-                                                <span className="text-sm font-medium text-gray-700">Subtotal productos:</span>
-                                                <span className="text-base font-bold text-gray-900">
-                                                    ${group.subtotal.toLocaleString('es-CL')}
-                                                </span>
-                                            </div>
-                                        {shippingByVendor[group.vendor._id]?.selected && (
-                                            <div className="flex justify-between items-center mt-2">
-                                                <span className="text-sm font-medium text-gray-700">Envío:</span>
-                                                <span className="text-base font-bold text-gray-900">
-                                                    {shippingByVendor[group.vendor._id].selected!.cost === 0
-                                                        ? 'Gratis'
-                                                        : `$${shippingByVendor[group.vendor._id].selected!.cost.toLocaleString('es-CL')}`
-                                                    }
-                                                </span>
+                                            <p className="text-sm text-red-600">
+                                                No hay opciones de envío disponibles para tu  zona
+                                            </p>
+                                        ) : (
+                                            <div className="space-y-2">
+                                                {shippingByVendor[group.vendor._id]?.options.map((option, idx) => {
+                                                    // Determinar icono según tipo
+                                                    let Icon = MapPin;
+                                                    if (option.type === 'metro') Icon = Train;
+                                                    if (option.type === 'pickup_store') Icon = Store;
+
+                                                    return (
+                                                        <label
+                                                            key={option.id || idx}
+                                                            className={`flex items-start justify-between p-3 border-2 rounded-lg cursor-pointer transition ${shippingByVendor[group.vendor._id]?.selected?.id === option.id
+                                                                    ? 'border-amber-700 bg-amber-50'
+                                                                    : 'border-gray-200 hover:border-gray-300'
+                                                                }`}
+                                                        >
+                                                            <div className="flex items-start gap-3 flex-1">
+                                                                <input
+                                                                    type="radio"
+                                                                    name={`shipping-${group.vendor._id}`}
+                                                                    checked={shippingByVendor[group.vendor._id]?.selected?.id === option.id}
+                                                                    onChange={() => handleShippingSelection(group.vendor._id, option)}
+                                                                    className="w-4 h-4 text-amber-700 mt-0.5"
+                                                                />
+                                                                <Icon className="w-5 h-5 text-gray-600 mt-0.5" />
+                                                                <div className="flex-1">
+                                                                    <p className="text-sm font-medium text-gray-900">{option.name}</p>
+                                                                    {option.estimatedDays > 0 && (
+                                                                        <p className="text-xs text-gray-500 mt-0.5">
+                                                                            {option.estimatedDays} {option.estimatedDays === 1 ? 'día' : 'días'}
+                                                                        </p>
+                                                                    )}
+                                                                    {option.instructions && (
+                                                                        <p className="text-xs text-gray-500 italic mt-1">{option.instructions}</p>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                            <p className="text-sm font-bold text-gray-900 ml-2">
+                                                                {option.cost === 0 ? 'GRATIS' : `$${option.cost.toLocaleString('es-CL')}`}
+                                                            </p>
+                                                        </label>
+                                                    );
+                                                })}
                                             </div>
                                         )}
                                     </div>
