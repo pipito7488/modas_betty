@@ -50,10 +50,21 @@ export async function GET(req: Request) {
             .limit(limit)
             .sort({ createdAt: -1 });
 
+        // Get total count for pagination
+        const total = await Product.countDocuments(filters);
+        const pages = Math.ceil(total / limit);
+
         return NextResponse.json({
             products,
-            count: products.length
+            count: products.length,
+            pagination: {
+                page: 1, // Default page since we're not implementing paging yet
+                limit,
+                total,
+                pages
+            }
         });
+
 
     } catch (error) {
         console.error('Error fetching products:', error);
