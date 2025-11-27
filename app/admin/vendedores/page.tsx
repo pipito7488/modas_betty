@@ -14,6 +14,7 @@ interface Vendor {
     active: boolean;
     profileComplete: boolean;
     canSell: boolean;
+    commission: number;
     createdAt: Date;
     phones: any[];
     addresses: any[];
@@ -32,6 +33,8 @@ export default function AdminVendorsPage() {
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
     const [togglingVendor, setTogglingVendor] = useState<string | null>(null);
+    const [editingCommission, setEditingCommission] = useState<string | null>(null);
+    const [commissionValue, setCommissionValue] = useState<number>(0);
 
     useEffect(() => {
         if (status === 'unauthenticated') {
@@ -77,6 +80,32 @@ export default function AdminVendorsPage() {
             alert('Error al actualizar vendedor');
         } finally {
             setTogglingVendor(null);
+        }
+    };
+
+    const handleUpdateCommission = async (vendorId: string) => {
+        if (commissionValue < 0 || commissionValue > 100) {
+            alert('La comisión debe estar entre 0 y 100%');
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/admin/vendors/${vendorId}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ commission: commissionValue })
+            });
+
+            if (response.ok) {
+                setEditingCommission(null);
+                fetchVendors();
+            } else {
+                const error = await response.json();
+                alert(error.error || 'Error al actualizar comisión');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error al actualizar comisión');
         }
     };
 
@@ -203,6 +232,9 @@ export default function AdminVendorsPage() {
                                         Ventas
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                                        Comisión
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                                         Estado
                                     </th>
                                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-700 uppercase tracking-wider">
@@ -278,8 +310,8 @@ export default function AdminVendorsPage() {
                                             </td>
                                             <td className="px-6 py-4">
                                                 <span className={`inline-flex px-3 py-1 text-xs font-medium rounded-full ${vendor.active
-                                                        ? 'bg-green-100 text-green-800'
-                                                        : 'bg-gray-100 text-gray-800'
+                                                    ? 'bg-green-100 text-green-800'
+                                                    : 'bg-gray-100 text-gray-800'
                                                     }`}>
                                                     {vendor.active ? 'Activo' : 'Inactivo'}
                                                 </span>
@@ -289,8 +321,8 @@ export default function AdminVendorsPage() {
                                                     onClick={() => handleToggleActive(vendor._id, vendor.active)}
                                                     disabled={togglingVendor === vendor._id}
                                                     className={`inline-flex items-center gap-1 px-3 py-1.5 text-sm rounded transition-colors ${vendor.active
-                                                            ? 'text-red-700 hover:bg-red-50'
-                                                            : 'text-green-700 hover:bg-green-50'
+                                                        ? 'text-red-700 hover:bg-red-50'
+                                                        : 'text-green-700 hover:bg-green-50'
                                                         } disabled:opacity-50`}
                                                 >
                                                     {togglingVendor === vendor._id ? (

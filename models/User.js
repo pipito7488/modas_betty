@@ -123,6 +123,17 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  // Comisión del vendedor (0-100%)
+  commission: {
+    type: Number,
+    default: 0,
+    min: 0,
+    max: 100
+  },
+  active: {
+    type: Boolean,
+    default: true
+  }
 }, {
   timestamps: true
 });

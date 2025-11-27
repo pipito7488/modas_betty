@@ -50,6 +50,7 @@ export async function GET(req: Request) {
                     active: vendor.active,
                     profileComplete: vendor.profileComplete,
                     canSell: vendor.canSell,
+                    commission: vendor.commission || 0,
                     createdAt: vendor.createdAt,
                     phones: vendor.phones,
                     addresses: vendor.addresses,
