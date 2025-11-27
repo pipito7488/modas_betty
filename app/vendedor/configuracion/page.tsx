@@ -185,13 +185,19 @@ export default function VendedorConfigPage() {
 
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             {/* Banco */}
-                                            <div>
+                                            <div className="md:col-span-2">
                                                 <label className="block text-sm font-medium text-gray-700 mb-1">
                                                     Banco *
                                                 </label>
                                                 <select
-                                                    value={method.bankName}
-                                                    onChange={(e) => updatePaymentMethod(index, 'bankName', e.target.value)}
+                                                    value={method.bankName === 'Otro' ? 'Otro' : (BANKS.includes(method.bankName) ? method.bankName : 'Otro')}
+                                                    onChange={(e) => {
+                                                        if (e.target.value === 'Otro') {
+                                                            updatePaymentMethod(index, 'bankName', 'Otro');
+                                                        } else {
+                                                            updatePaymentMethod(index, 'bankName', e.target.value);
+                                                        }
+                                                    }}
                                                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
                                                 >
                                                     <option value="">Seleccionar banco...</option>
@@ -199,6 +205,17 @@ export default function VendedorConfigPage() {
                                                         <option key={bank} value={bank}>{bank}</option>
                                                     ))}
                                                 </select>
+
+                                                {/* Campo de texto cuando selecciona "Otro" */}
+                                                {(method.bankName === 'Otro' || !BANKS.slice(0, -1).includes(method.bankName)) && (
+                                                    <input
+                                                        type="text"
+                                                        value={method.bankName === 'Otro' ? '' : method.bankName}
+                                                        onChange={(e) => updatePaymentMethod(index, 'bankName', e.target.value)}
+                                                        placeholder="Especificar nombre del banco..."
+                                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 mt-2"
+                                                    />
+                                                )}
                                             </div>
 
                                             {/* Tipo de Cuenta */}
