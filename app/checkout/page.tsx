@@ -57,7 +57,9 @@ export default function CheckoutPage() {
             if (!addressRes.ok) {
                 throw new Error('Error al obtener dirección');
             }
-            const addresses = await addressRes.json();
+            const addressData = await addressRes.json();
+            // Asegurar que addresses sea un array
+            const addresses = Array.isArray(addressData) ? addressData : (addressData.addresses || []);
             const defaultAddress = addresses.find((a: any) => a.isDefault) || addresses[0];
 
             if (!defaultAddress) {
@@ -71,7 +73,9 @@ export default function CheckoutPage() {
             if (!phoneRes.ok) {
                 throw new Error('Error al obtener teléfono');
             }
-            const phones = await phoneRes.json();
+            const phoneData = await phoneRes.json();
+            // Asegurar que phones sea un array
+            const phones = Array.isArray(phoneData) ? phoneData : (phoneData.phones || []);
             const defaultPhone = phones.find((p: any) => p.isDefault) || phones[0];
 
             if (!defaultPhone) {
