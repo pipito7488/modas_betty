@@ -184,9 +184,17 @@ export async function POST(req: Request) {
         }, { status: 201 });
 
     } catch (error) {
-        console.error('Error creating orders:', error);
+        console.error('==================== CHECKOUT ERROR ====================');
+        console.error('Error type:', error instanceof Error ? error.constructor.name : typeof error);
+        console.error('Error message:', error instanceof Error ? error.message : error);
+        console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+        console.error('========================================================');
+
         return NextResponse.json(
-            { error: 'Error al procesar checkout' },
+            {
+                error: 'Error al procesar checkout',
+                details: error instanceof Error ? error.message : 'Error desconocido'
+            },
             { status: 500 }
         );
     }
