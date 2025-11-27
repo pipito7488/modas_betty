@@ -95,20 +95,6 @@ export default function ProductDetailPage() {
 
             const data = await response.json();
 
-            if (!response.ok) {
-                throw new Error(data.error || 'Error al agregar al carrito');
-            }
-
-            // Mostrar mensaje de éxito
-            alert('✅ Producto agregado al carrito');
-
-            // Opcionalmente redirigir al carrito
-            // window.location.href = '/carrito';
-
-        } catch (error) {
-            console.error('Error adding to cart:', error);
-            alert(error instanceof Error ? error.message : 'Error al agregar al carrito');
-        } finally {
             setAddingToCart(false);
         }
     };
