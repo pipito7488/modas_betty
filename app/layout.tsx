@@ -2,6 +2,7 @@
 import './globals.css';
 import { ThemeProvider } from '@/app/components/ThemeProvider';
 import SessionProvider from '@/app/components/SessionProvider';
+import { CartProvider } from '@/contexts/CartContext';
 import Header from '@/app/components/Header';
 import Footer from '@/app/components/Footer';
 
@@ -15,16 +16,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="es" suppressHydrationWarning>
       <body className="antialiased" suppressHydrationWarning>
         <SessionProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="light"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <Header />
-            {children}
-            <Footer />
-          </ThemeProvider>
+          <CartProvider>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="light"
+              enableSystem
+              disableTransitionOnChange
+            >
+              <Header />
+              {children}
+              <Footer />
+            </ThemeProvider>
+          </CartProvider>
         </SessionProvider>
       </body>
     </html>
