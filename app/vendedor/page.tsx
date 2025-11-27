@@ -22,7 +22,15 @@ export default function VendedorPanel() {
   useEffect(() => {
     fetch("/api/productos")
       .then((res) => res.json())
-      .then((data) => setProducts(data));
+      .then((data) => {
+        // La API puede retornar { products: [...] } o directamente [...]
+        const productsArray = Array.isArray(data) ? data : (data.products || []);
+        setProducts(productsArray);
+      })
+      .catch((error) => {
+        console.error('Error loading products:', error);
+        setProducts([]);
+      });
   }, []);
 
   return (
