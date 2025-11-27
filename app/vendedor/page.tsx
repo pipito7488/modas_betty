@@ -20,7 +20,8 @@ export default function VendedorPanel() {
   const [products, setProducts] = useState<Product[]>([]);
 
   useEffect(() => {
-    fetch("/api/productos")
+    // Usar endpoint específico de vendedor que filtra por usuario autenticado
+    fetch("/api/vendedor/productos")
       .then((res) => res.json())
       .then((data) => {
         // La API puede retornar { products: [...] } o directamente [...]
@@ -38,7 +39,7 @@ export default function VendedorPanel() {
       <h1 className="text-3xl font-bold mb-4">Panel del Vendedor</h1>
 
       <Link
-        href="/vendedor/new-product"
+        href="/vendedor/productos/nuevo"
         className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
       >
         + Agregar nuevo producto
