@@ -5,7 +5,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import Link from 'next/link';
-import { Users, Store, Package, Settings, TrendingUp, BarChart3, Crown } from 'lucide-react';
+import { Users, Store, Package, Settings, TrendingUp, BarChart3, Crown, Truck } from 'lucide-react';
 
 export default function AdminDashboard() {
     const { data: session, status } = useSession();
@@ -58,6 +58,15 @@ export default function AdminDashboard() {
             gradient: 'from-green-400 to-emerald-500',
             bgColor: 'bg-gradient-to-br from-green-50 to-emerald-50',
             iconBg: 'bg-gradient-to-br from-green-500 to-emerald-600',
+        },
+        {
+            title: 'Envíos',
+            description: 'Configura zonas y métodos de envío',
+            icon: Truck,
+            href: '/admin/envios',
+            gradient: 'from-yellow-400 to-amber-500',
+            bgColor: 'bg-gradient-to-br from-yellow-50 to-amber-50',
+            iconBg: 'bg-gradient-to-br from-yellow-500 to-amber-600',
         },
         {
             title: 'Estadísticas',

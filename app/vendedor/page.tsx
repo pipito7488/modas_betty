@@ -38,9 +38,37 @@ export default function VendedorPanel() {
     <div className="p-6">
       <h1 className="text-3xl font-bold mb-4">Panel del Vendedor</h1>
 
+      {/* Navegación Rápida */}
+      <div className="flex flex-wrap gap-3 mb-8">
+        <Link
+          href="/vendedor/productos"
+          className="flex items-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+        >
+          📦 Mis Productos
+        </Link>
+        <Link
+          href="/vendedor/envios"
+          className="flex items-center gap-2 bg-amber-600 text-white px-5 py-2.5 rounded-lg hover:bg-amber-700 transition-colors font-medium"
+        >
+          🚚 Configurar Envíos
+        </Link>
+        <Link
+          href="/vendedor/ordenes"
+          className="flex items-center gap-2 bg-green-600 text-white px-5 py-2.5 rounded-lg hover:bg-green-700 transition-colors font-medium"
+        >
+          📋 Mis Órdenes
+        </Link>
+        <Link
+          href="/vendedor/configuracion"
+          className="flex items-center gap-2 bg-gray-600 text-white px-5 py-2.5 rounded-lg hover:bg-gray-700 transition-colors font-medium"
+        >
+          ⚙️ Configuración
+        </Link>
+      </div>
+
       <Link
         href="/vendedor/productos/nuevo"
-        className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+        className="inline-block bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
       >
         + Agregar nuevo producto
       </Link>
