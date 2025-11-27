@@ -197,6 +197,43 @@ export default function ConfiguracionPage() {
                     </div>
                 )}
 
+                {/* Link rápido a configuración de métodos de pago (Solo vendedores y admin) */}
+                {session?.user?.role && ['vendedor', 'admin'].includes(session.user.role) && (
+                    <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-lg p-6 mb-6 shadow-sm hover:shadow-md transition-shadow">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-start gap-4">
+                                <div className="bg-amber-100 p-3 rounded-lg">
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-amber-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 className="font-semibold text-gray-900 mb-1">
+                                        Métodos de Pago
+                                    </h3>
+                                    <p className="text-sm text-gray-600 mb-3">
+                                        Configura cómo recibirás los pagos de tus clientes. {validation?.user.paymentMethodCount || 0}/3 métodos configurados.
+                                    </p>
+                                    {validation && validation.user.paymentMethodCount === 0 && (
+                                        <p className="text-xs text-amber-700 font-medium">
+                                            ⚠️ Necesitas configurar al menos un método de pago para recibir órdenes
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+                            <a
+                                href="/vendedor/configuracion"
+                                className="px-5 py-2.5 bg-amber-700 text-white rounded-lg font-medium hover:bg-amber-800 transition-colors shadow-sm flex items-center gap-2"
+                            >
+                                Configurar
+                                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                )}
+
                 {/* Tabs */}
                 <div className="bg-white rounded-lg shadow">
                     <div className="border-b border-gray-200">
@@ -204,8 +241,8 @@ export default function ConfiguracionPage() {
                             <button
                                 onClick={() => setActiveTab('perfil')}
                                 className={`py-4 px-6 text-sm font-medium border-b-2 ${activeTab === 'perfil'
-                                        ? 'border-blue-500 text-blue-600'
-                                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                    ? 'border-blue-500 text-blue-600'
+                                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                                     }`}
                             >
                                 Perfil
@@ -213,8 +250,8 @@ export default function ConfiguracionPage() {
                             <button
                                 onClick={() => setActiveTab('phones')}
                                 className={`py-4 px-6 text-sm font-medium border-b-2 ${activeTab === 'phones'
-                                        ? 'border-blue-500 text-blue-600'
-                                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                    ? 'border-blue-500 text-blue-600'
+                                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                                     }`}
                             >
                                 Teléfonos ({phones.length}/2)
@@ -222,8 +259,8 @@ export default function ConfiguracionPage() {
                             <button
                                 onClick={() => setActiveTab('addresses')}
                                 className={`py-4 px-6 text-sm font-medium border-b-2 ${activeTab === 'addresses'
-                                        ? 'border-blue-500 text-blue-600'
-                                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                    ? 'border-blue-500 text-blue-600'
+                                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                                     }`}
                             >
                                 Direcciones ({addresses.length}/3)
