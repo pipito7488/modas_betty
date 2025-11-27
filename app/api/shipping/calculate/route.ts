@@ -60,16 +60,12 @@ export async function POST(req: Request) {
             zone.matchesAddress(clientCommune, clientRegion)
         );
 
-        if (matchingZones.length === 0) {
-            return NextResponse.json({
-                available: false,
-                message: 'Este vendedor no hace envíos a tu zona. Puedes intentar cambiar tu dirección o contactar directamente.',
-                options: []
-            });
-        }
+        // Si no hay coincidencias exactas, mostrar TODAS las zonas del vendedor
+        // para que el cliente pueda ver las opciones y coordinar con el vendedor
+        const zonesToShow = matchingZones.length > 0 ? matchingZones : shippingZones;
 
         // Formatear opciones para el cliente
-        const options = matchingZones.map(zone => {
+        const options = zonesToShow.map(zone => {
             const option: any = {
                 id: zone._id.toString(),
                 type: zone.type,
@@ -103,7 +99,11 @@ export async function POST(req: Request) {
         return NextResponse.json({
             available: true,
             vendorId,
-            options
+            options,
+            exactMatch: matchingZones.length > 0, // Indica si hay coincidencia exacta
+            message: matchingZones.length === 0
+                ? 'Mostrando todas las zonas disponibles del vendedor. Puedes coordinar con el vendedor para otras opciones de envío.'
+                : undefined
         });
 
     } catch (error) {
