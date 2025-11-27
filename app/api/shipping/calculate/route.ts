@@ -45,36 +45,44 @@ export async function POST(req: Request) {
         }
 
         // Buscar zona que coincida con la dirección del cliente
-        let matchingZone = null;
+        let matchingZones: any[] = [];
 
         if (commune && region) {
-            matchingZone = shippingZones.find(zone => {
+            // Buscar zonas que coincidan
+            for (const zone of shippingZones) {
+                let matches = false;
+
                 if (zone.type === 'commune') {
-                    return zone.commune?.toLowerCase() === commune.toLowerCase() &&
+                    // Match exacto de comuna y región
+                    matches = zone.commune?.toLowerCase() === commune.toLowerCase() &&
                         zone.region?.toLowerCase() === region.toLowerCase();
+                } else if (zone.type === 'metro') {
+                    // Match de región (para zonas metropolitanas)
+                    matches = zone.region?.toLowerCase() === region.toLowerCase();
+                } else if (zone.type === 'custom') {
+                    // Match de región para custom zones
+                    matches = zone.region?.toLowerCase() === region.toLowerCase();
                 }
-                return false;
-            });
+
+                if (matches) {
+                    matchingZones.push({
+                        type: 'delivery',
+                        name: zone.name || `Envío  a ${zone.commune || zone.region}`,
+                        cost: zone.cost || 0,
+                        estimatedDays: zone.estimatedDays || 3,
+                        zoneId: zone._id.toString()
+                    });
+                }
+            }
         }
 
         // Verificar si hay pickup disponible
         const pickupZone = shippingZones.find(zone => zone.pickupAvailable === true);
 
         const response: any = {
-            available: !!matchingZone,
-            zones: []
+            available: matchingZones.length > 0 || !!pickupZone,
+            zones: [...matchingZones]
         };
-
-        // Agregar opción de delivery si hay zona coincidente
-        if (matchingZone) {
-            response.zones.push({
-                type: 'delivery',
-                name: `Envío a ${matchingZone.commune}, ${matchingZone.region}`,
-                cost: matchingZone.cost || 0,
-                estimatedDays: matchingZone.estimatedDays || 3,
-                zoneId: matchingZone._id
-            });
-        }
 
         // Agregar opción de pickup si está disponible
         if (pickupZone) {
@@ -84,7 +92,7 @@ export async function POST(req: Request) {
                 cost: pickupZone.pickupCost || 0,
                 estimatedDays: 0,
                 address: pickupZone.pickupAddress,
-                zoneId: pickupZone._id
+                zoneId: pickupZone._id.toString()
             });
         }
 
