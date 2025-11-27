@@ -65,6 +65,110 @@ export async function GET(req: Request) {
 }
 
 /**
+ * POST /api/admin/shipping
+ * Crear nueva zona de envío (solo admin)
+ */
+export async function POST(req: Request) {
+    try {
+        const session = await getServerSession() as any;
+
+        if (!session?.user?.email) {
+            return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+        }
+
+        if (session.user.role !== 'admin') {
+            return NextResponse.json({ error: 'Acceso denegado' }, { status: 403 });
+        }
+
+        const body = await req.json();
+        const { vendor, type, cost, estimatedDays, enabled, instructions } = body;
+
+        // Validaciones básicas
+        if (!vendor || !type || cost === undefined || estimatedDays === undefined) {
+            return NextResponse.json(
+                { error: 'Faltan campos requeridos: vendor, type, cost, estimatedDays' },
+                { status: 400 }
+            );
+        }
+
+        // Validaciones específicas por tipo
+        if (type === 'commune' && (!body.commune || !body.region)) {
+            return NextResponse.json(
+                { error: 'Para tipo comuna se requiere: commune y region' },
+                { status: 400 }
+            );
+        }
+
+        if (type === 'region' && !body.region) {
+            return NextResponse.json(
+                { error: 'Para tipo región se requiere: region' },
+                { status: 400 }
+            );
+        }
+
+        if (type === 'metro' && (!body.metroLine || !body.metroStation)) {
+            return NextResponse.json(
+                { error: 'Para tipo metro se requiere: metroLine y metroStation' },
+                { status: 400 }
+            );
+        }
+
+        if (type === 'pickup_store' && !body.storeAddress?.street) {
+            return NextResponse.json(
+                { error: 'Para tipo pickup_store se requiere: storeAddress.street' },
+                { status: 400 }
+            );
+        }
+
+        await mongoose.connect(process.env.MONGODB_URI!);
+
+        // Extraer vendorId si viene como objeto
+        const vendorId = typeof vendor === 'object' ? vendor._id : vendor;
+
+        // Crear nombre automático basado en el tipo
+        let name = '';
+        if (type === 'commune') {
+            name = `${body.commune}`;
+        } else if (type === 'region') {
+            name = `${body.region}`;
+        } else if (type === 'metro') {
+            name = `${body.metroLine} - ${body.metroStation}`;
+        } else if (type === 'pickup_store') {
+            name = `Retiro en ${body.storeAddress.street}`;
+        }
+
+        // Crear la zona
+        const newZone = await ShippingZone.create({
+            vendor: vendorId,
+            name,
+            type,
+            commune: body.commune,
+            region: body.region,
+            metroLine: body.metroLine,
+            metroStation: body.metroStation,
+            storeAddress: body.storeAddress,
+            cost: parseFloat(cost),
+            estimatedDays: parseInt(estimatedDays),
+            enabled: enabled !== undefined ? enabled : true,
+            pickupAvailable: type === 'pickup_store',
+            instructions: instructions || ''
+        });
+
+        return NextResponse.json({
+            message: 'Zona creada exitosamente',
+            zone: newZone
+        }, { status: 201 });
+
+    } catch (error: any) {
+        console.error('Error creating shipping zone:', error);
+        return NextResponse.json(
+            { error: error.message || 'Error al crear zona de envío' },
+            { status: 500 }
+        );
+    }
+}
+
+/**
  * PATCH /api/admin/shipping
  * Actualizar múltiples zonas (habilitar/deshabilitar en bulk)
  */

@@ -158,6 +158,43 @@ export default function AdminShippingPage() {
         setSaving(true);
 
         try {
+            // Validaciones antes de enviar
+            if (!editingZone && !formData.vendor) {
+                setError('Por favor selecciona un vendedor');
+                setSaving(false);
+                return;
+            }
+
+            if (formData.type === 'commune' && (!formData.commune || !formData.region)) {
+                setError('Por favor completa la región y comuna');
+                setSaving(false);
+                return;
+            }
+
+            if (formData.type === 'region' && !formData.region) {
+                setError('Por favor selecciona una región');
+                setSaving(false);
+                return;
+            }
+
+            if (formData.type === 'metro' && (!formData.metroLine || !formData.metroStation)) {
+                setError('Por favor completa la línea y estación de metro');
+                setSaving(false);
+                return;
+            }
+
+            if (formData.type === 'pickup_store' && !formData.storeAddress?.street) {
+                setError('Por favor completa la dirección de retiro');
+                setSaving(false);
+                return;
+            }
+
+            if (!formData.cost || formData.cost < 0) {
+                setError('Por favor ingresa un costo válido');
+                setSaving(false);
+                return;
+            }
+
             const url = editingZone ? `/api/admin/shipping/${editingZone._id}` : '/api/admin/shipping';
             const method = editingZone ? 'PUT' : 'POST';
 
@@ -174,10 +211,11 @@ export default function AdminShippingPage() {
                 loadZones();
             } else {
                 const data = await res.json();
-                setError(data.error || 'Error al guardar');
+                setError(data.error || data.message || 'Error al guardar la zona');
             }
         } catch (error) {
-            setError('Erro al guardar');
+            console.error('Error al guardar zona:', error);
+            setError(error instanceof Error ? error.message : 'Error de conexión. Por favor intenta nuevamente.');
         } finally {
             setSaving(false);
         }
