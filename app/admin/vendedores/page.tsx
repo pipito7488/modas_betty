@@ -309,6 +309,45 @@ export default function AdminVendorsPage() {
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4">
+                                                {editingCommission === vendor._id ? (
+                                                    <div className="flex items-center gap-2">
+                                                        <input
+                                                            type="number"
+                                                            min="0"
+                                                            max="100"
+                                                            value={commissionValue}
+                                                            onChange={(e) => setCommissionValue(Number(e.target.value))}
+                                                            className="w-20 px-2 py-1 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-amber-500"
+                                                        />
+                                                        <button
+                                                            onClick={() => handleUpdateCommission(vendor._id)}
+                                                            className="text-green-600 hover:text-green-700"
+                                                        >
+                                                            <Check className="w-4 h-4" />
+                                                        </button>
+                                                        <button
+                                                            onClick={() => setEditingCommission(null)}
+                                                            className="text-red-600 hover:text-red-700"
+                                                        >
+                                                            <X className="w-4 h-4" />
+                                                        </button>
+                                                    </div>
+                                                ) : (
+                                                    <div
+                                                        className="flex items-center gap-2 cursor-pointer hover:bg-amber-50 p-1 rounded"
+                                                        onClick={() => {
+                                                            setEditingCommission(vendor._id);
+                                                            setCommissionValue(vendor.commission || 0);
+                                                        }}
+                                                    >
+                                                        <span className="font-medium text-amber-700">
+                                                            {vendor.commission || 0}%
+                                                        </span>
+                                                        <span className="text-xs text-gray-500">✏️</span>
+                                                    </div>
+                                                )}
+                                            </td>
+                                            <td className="px-6 py-4">
                                                 <span className={`inline-flex px-3 py-1 text-xs font-medium rounded-full ${vendor.active
                                                     ? 'bg-green-100 text-green-800'
                                                     : 'bg-gray-100 text-gray-800'
