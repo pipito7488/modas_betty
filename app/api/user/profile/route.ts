@@ -27,20 +27,19 @@ export async function GET() {
         }
 
         return NextResponse.json({
-            user: {
-                name: user.name,
-                email: user.email,
-                phone: user.phone || '',
-                address: user.address || {
-                    street: '',
-                    city: '',
-                    state: '',
-                    zipCode: '',
-                    country: 'Argentina',
-                },
-                image: user.image,
-                role: user.role,
-            }
+            name: user.name,
+            email: user.email,
+            phone: user.phone || '',
+            address: user.address || {
+                street: '',
+                city: '',
+                state: '',
+                zipCode: '',
+                country: 'Argentina',
+            },
+            image: user.image,
+            role: user.role,
+            paymentMethods: user.paymentMethods || [],
         });
 
     } catch (error) {
@@ -93,6 +92,63 @@ export async function PATCH(req: Request) {
                 phone: user.phone,
                 address: user.address,
             }
+        });
+
+    } catch (error) {
+        console.error('Error updating profile:', error);
+        return NextResponse.json(
+            { error: 'Error al actualizar perfil' },
+            { status: 500 }
+        );
+    }
+}
+
+export async function PUT(req: Request) {
+    try {
+        const session = await getServerSession() as any;
+
+        if (!session || !session.user?.email) {
+            return NextResponse.json(
+                { error: 'No autorizado' },
+                { status: 401 }
+            );
+        }
+
+        const body = await req.json();
+        const { paymentMethods } = body;
+
+        await mongoose.connect(process.env.MONGODB_URI!);
+
+        const updateData: any = {};
+
+        // Actualizar métodos de pago si se enviaron
+        if (paymentMethods !== undefined) {
+            // Validar que no sean más de 3
+            if (Array.isArray(paymentMethods) && paymentMethods.length > 3) {
+                return NextResponse.json(
+                    { error: 'Máximo 3 métodos de pago permitidos' },
+                    { status: 400 }
+                );
+            }
+            updateData.paymentMethods = paymentMethods;
+        }
+
+        const user = await User.findOneAndUpdate(
+            { email: session.user.email },
+            updateData,
+            { new: true }
+        );
+
+        if (!user) {
+            return NextResponse.json(
+                { error: 'Usuario no encontrado' },
+                { status: 404 }
+            );
+        }
+
+        return NextResponse.json({
+            message: 'Perfil actualizado exitosamente',
+            paymentMethods: user.paymentMethods,
         });
 
     } catch (error) {
