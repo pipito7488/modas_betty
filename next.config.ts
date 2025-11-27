@@ -8,7 +8,11 @@ const nextConfig = {
         hostname: 'res.cloudinary.com',
         pathname: '/**',
       },
-      // Si tienes otros dominios de imágenes (como Unsplash, Google, Vercel, etc.), agrégalos aquí como remotePatterns
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+        pathname: '/**',
+      },
     ],
   },
 
