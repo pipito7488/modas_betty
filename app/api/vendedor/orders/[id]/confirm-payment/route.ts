@@ -67,9 +67,33 @@ export async function POST(
             const product = await Product.findById(item.product);
 
             if (product) {
-                const newStock = Math.max(0, product.stock - item.quantity);
-                product.stock = newStock;
-                await product.save();
+                // Si el producto usa variantes, descontar de la variante específica
+                if (product.variants && product.variants.length > 0 && item.selectedSize && item.selectedColor) {
+                    const variantIndex = product.variants.findIndex((v: any) =>
+                        v.size === item.selectedSize && v.color === item.selectedColor
+                    );
+
+                    if (variantIndex !== -1) {
+                        // Descontar stock de la variante
+                        product.variants[variantIndex].stock = Math.max(
+                            0,
+                            product.variants[variantIndex].stock - item.quantity
+                        );
+
+                        // Recalcular stock total del producto
+                        product.stock = product.variants.reduce(
+                            (total: number, v: any) => total + (v.stock || 0),
+                            0
+                        );
+
+                        await product.save();
+                    }
+                } else {
+                    // Producto sin variantes, descontar del stock general
+                    const newStock = Math.max(0, product.stock - item.quantity);
+                    product.stock = newStock;
+                    await product.save();
+                }
             }
         }
 
