@@ -6,6 +6,7 @@ import Cart from '@/models/Cart';
 import Order from '@/models/Order';
 import Product from '@/models/Product';
 import User from '@/models/User';
+import ShippingZone from '@/models/ShippingZone';
 
 /**
  * POST /api/checkout
@@ -71,14 +72,31 @@ export async function POST(req: Request) {
                 );
             }
 
+            // Validar que la zona de envío exista y pertenezca al vendedor
+            let shippingZone = null;
+            if (shipping.selected.zoneId) {
+                shippingZone = await ShippingZone.findOne({
+                    _id: shipping.selected.zoneId,
+                    vendor: vendorId,
+                    enabled: true
+                });
+
+                if (!shippingZone) {
+                    return NextResponse.json(
+                        { error: `Zona de envío inválida para vendedor ${group.vendor.name}` },
+                        { status: 400 }
+                    );
+                }
+            }
+
             // Preparar items de la orden
             const orderItems = group.items.map((item: any) => ({
                 product: item.product._id,
                 name: item.product.name,
                 price: item.price,
                 quantity: item.quantity,
-                size: item.selectedSize,
-                color: item.selectedColor,
+                selectedSize: item.selectedSize,
+                selectedColor: item.selectedColor,
                 image: item.product.images?.[0] || null
             }));
 
@@ -129,6 +147,7 @@ export async function POST(req: Request) {
                 vendorNetAmount,
                 status: 'pending_payment',
                 shippingMethod,
+                shippingZone: shippingZone?._id || null,
                 shippingAddress,
                 pickupAddress,
                 customerContact: {
