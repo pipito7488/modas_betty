@@ -87,34 +87,12 @@ export async function POST(req: Request) {
             );
         }
 
-        // Verificar stock por variante específica
-        if (product.variants && product.variants.length > 0) {
-            // El producto usa variantes, validar contra la variante específica
-            const variant = product.variants.find((v: any) =>
-                v.size === size && v.color === color
+        // Validar stock (simple - usa stock general del producto)
+        if (product.stock < quantity) {
+            return NextResponse.json(
+                { error: `Stock insuficiente. Disponible: ${product.stock}` },
+                { status: 400 }
             );
-
-            if (!variant) {
-                return NextResponse.json(
-                    { error: `No hay stock disponible para ${color} talla ${size}` },
-                    { status: 400 }
-                );
-            }
-
-            if (variant.stock < quantity) {
-                return NextResponse.json(
-                    { error: `Stock insuficiente para esta variante. Disponible: ${variant.stock}` },
-                    { status: 400 }
-                );
-            }
-        } else {
-            // Producto sin variantes, validar stock general
-            if (product.stock < quantity) {
-                return NextResponse.json(
-                    { error: `Stock insuficiente. Disponible: ${product.stock}` },
-                    { status: 400 }
-                );
-            }
         }
 
         // Buscar o crear carrito
