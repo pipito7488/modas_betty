@@ -73,7 +73,8 @@ export default function CartPage() {
             // Cargar direcciones del usuario
             const addressRes = await fetch('/api/user/addresses');
             if (addressRes.ok) {
-                const addresses = await addressRes.json();
+                const data = await addressRes.json();
+                const addresses = Array.isArray(data) ? data : (data.addresses || []);
                 const defaultAddress = addresses.find((a: any) => a.isDefault) || addresses[0];
                 setUserAddress(defaultAddress);
             }
@@ -358,8 +359,8 @@ export default function CartPage() {
                                                     <label
                                                         key={idx}
                                                         className={`flex items-center justify-between p-3 border-2 rounded-lg cursor-pointer transition-all ${shippingByVendor[group.vendor._id]?.selected?.type === option.type
-                                                                ? 'border-amber-700 bg-amber-50'
-                                                                : 'border-gray-200 hover:border-gray-300'
+                                                            ? 'border-amber-700 bg-amber-50'
+                                                            : 'border-gray-200 hover:border-gray-300'
                                                             }`}
                                                     >
                                                         <div className="flex items-center gap-3">
