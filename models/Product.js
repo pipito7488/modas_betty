@@ -60,6 +60,25 @@ const ProductSchema = new mongoose.Schema({
     min: [0, 'El stock no puede ser negativo'],
     default: 0
   },
+  // Inventario por variante (opcional, si se usa anula el stock general)
+  variants: [{
+    size: {
+      type: String,
+      required: true,
+      enum: ['XS', 'S', 'M', 'L', 'XL', 'XXL']
+    },
+    color: {
+      type: String,
+      required: true
+    },
+    stock: {
+      type: Number,
+      required: true,
+      min: 0,
+      default: 0
+    },
+    sku: String // Código único opcional para esta variante
+  }],
   category: {
     type: String,
     required: [true, 'La categoría es requerida'],
@@ -72,6 +91,14 @@ const ProductSchema = new mongoose.Schema({
   },
   colors: {
     type: [String],
+    enum: [
+      'Negro', 'Blanco', 'Gris', 'Beige', 'Marrón',
+      'Rojo', 'Rosa', 'Fucsia', 'Morado', 'Lila',
+      'Azul', 'Azul Marino', 'Celeste', 'Turquesa',
+      'Verde', 'Verde Oliva', 'Menta',
+      'Amarillo', 'Naranja', 'Dorado', 'Plateado',
+      'Multicolor', 'Estampado'
+    ],
     default: []
   },
   images: {

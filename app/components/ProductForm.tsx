@@ -5,7 +5,9 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import ImageUpload from './ImageUpload';
+import VariantsManager from './VariantsManager';
 import { Loader2, Save, DollarSign, Percent, Calendar, Eye, EyeOff } from 'lucide-react';
+import { AVAILABLE_COLORS, AVAILABLE_SIZES, COLOR_HEX_MAP } from '@/lib/productConstants';
 
 interface ProductFormProps {
     product?: any;
@@ -45,12 +47,13 @@ export default function ProductForm({ product, isEdit = false }: ProductFormProp
         category: product?.category || 'Vestidos',
         sizes: product?.sizes || [],
         colors: product?.colors || [],
+        variants: product?.variants || [],
         images: product?.images || [],
         featured: product?.featured || false,
         active: product?.active !== undefined ? product.active : true,
     });
 
-    const [newColor, setNewColor] = useState('');
+    const [useVariants, setUseVariants] = useState(product?.variants?.length > 0 || false);
 
     // Calcular precio base y precio final
     const costPrice = parseFloat(formData.costPrice) || 0;
