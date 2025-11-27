@@ -6,7 +6,15 @@ import ShippingZone from '@/models/ShippingZone';
 
 /**
  * POST /api/shipping/calculate
- * Calcular costo de envío para un vendedor según la dirección del cliente
+ * Calcular opciones de envío disponibles para un cliente
+ * 
+ * Body: {
+ *   vendorId: string,
+ *   clientAddress: {
+ *     commune: string,
+ *     region: string
+ *   }
+ * }
  */
 export async function POST(req: Request) {
     try {
@@ -19,7 +27,7 @@ export async function POST(req: Request) {
             );
         }
 
-        const { vendorId, commune, region } = await req.json();
+        const { vendorId, clientAddress } = await req.json();
 
         if (!vendorId) {
             return NextResponse.json(
@@ -30,78 +38,73 @@ export async function POST(req: Request) {
 
         await mongoose.connect(process.env.MONGODB_URI!);
 
-        // Buscar zonas de envío del vendedor
+        // Buscar TODAS las zonas habilitadas del vendedor
         const shippingZones = await ShippingZone.find({
             vendor: vendorId,
             enabled: true
-        });
+        }).sort({ cost: 1 }); // Ordenar por costo (más barato primero)
 
         if (shippingZones.length === 0) {
             return NextResponse.json({
                 available: false,
-                message: 'Este vendedor no tiene zonas de envío configuradas',
-                pickupAvailable: false
+                message: 'Este vendedor no tiene métodos de envío configurados',
+                options: []
             });
         }
 
-        // Buscar zona que coincida con la dirección del cliente
-        let matchingZones: any[] = [];
+        const clientCommune = clientAddress?.commune;
+        const clientRegion = clientAddress?.region;
 
-        if (commune && region) {
-            // Buscar zonas que coincidan
-            for (const zone of shippingZones) {
-                let matches = false;
+        // Filtrar zonas que coinciden con la dirección del cliente
+        const matchingZones = shippingZones.filter(zone =>
+            zone.matchesAddress(clientCommune, clientRegion)
+        );
 
-                if (zone.type === 'commune') {
-                    // Match exacto de comuna y región
-                    matches = zone.commune?.toLowerCase() === commune.toLowerCase() &&
-                        zone.region?.toLowerCase() === region.toLowerCase();
-                } else if (zone.type === 'metro') {
-                    // Match de región (para zonas metropolitanas)
-                    matches = zone.region?.toLowerCase() === region.toLowerCase();
-                } else if (zone.type === 'custom') {
-                    // Match de región para custom zones
-                    matches = zone.region?.toLowerCase() === region.toLowerCase();
-                }
+        if (matchingZones.length === 0) {
+            return NextResponse.json({
+                available: false,
+                message: 'Este vendedor no hace envíos a tu zona. Puedes intentar cambiar tu dirección o contactar directamente.',
+                options: []
+            });
+        }
 
-                if (matches) {
-                    matchingZones.push({
-                        type: 'delivery',
-                        name: zone.name || `Envío  a ${zone.commune || zone.region}`,
-                        cost: zone.cost || 0,
-                        estimatedDays: zone.estimatedDays || 3,
-                        zoneId: zone._id.toString()
-                    });
-                }
+        // Formatear opciones para el cliente
+        const options = matchingZones.map(zone => {
+            const option: any = {
+                id: zone._id.toString(),
+                type: zone.type,
+                name: zone.name,
+                cost: zone.cost,
+                estimatedDays: zone.estimatedDays,
+                instructions: zone.instructions || ''
+            };
+
+            // Agregar detalles específicos según tipo
+            if (zone.type === 'commune') {
+                option.deliveryTo = `${zone.commune}, ${zone.region}`;
+            } else if (zone.type === 'region') {
+                option.deliveryTo = zone.region;
+            } else if (zone.type === 'metro') {
+                option.metroInfo = {
+                    line: zone.metroLine,
+                    station: zone.metroStation
+                };
+            } else if (zone.type === 'pickup_store') {
+                option.storeInfo = {
+                    address: zone.storeAddress?.street,
+                    commune: zone.storeAddress?.commune,
+                    reference: zone.storeAddress?.reference
+                };
             }
-        }
 
-        // Verificar si hay pickup disponible
-        const pickupZone = shippingZones.find(zone => zone.pickupAvailable === true);
+            return option;
+        });
 
-        const response: any = {
-            available: matchingZones.length > 0 || !!pickupZone,
-            zones: [...matchingZones]
-        };
-
-        // Agregar opción de pickup si está disponible
-        if (pickupZone) {
-            response.zones.push({
-                type: 'pickup',
-                name: 'Retiro en tienda',
-                cost: pickupZone.pickupCost || 0,
-                estimatedDays: 0,
-                address: pickupZone.pickupAddress,
-                zoneId: pickupZone._id.toString()
-            });
-        }
-
-        // Si no hay opciones disponibles
-        if (response.zones.length === 0) {
-            response.message = 'Este vendedor no hace envíos a tu zona. Contacta directamente al vendedor.';
-        }
-
-        return NextResponse.json(response);
+        return NextResponse.json({
+            available: true,
+            vendorId,
+            options
+        });
 
     } catch (error) {
         console.error('Error calculating shipping:', error);
