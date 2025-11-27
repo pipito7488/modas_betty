@@ -352,6 +352,26 @@ export default function ProductForm({ product, isEdit = false }: ProductFormProp
                 </div>
             </div>
 
+            {/* Stock */}
+            <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Stock Disponible *
+                </label>
+                <input
+                    type="number"
+                    required
+                    min="0"
+                    step="1"
+                    value={formData.stock}
+                    onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    placeholder="Ej: 50"
+                />
+                <p className="text-sm text-gray-600 mt-1">
+                    Cantidad de unidades disponibles para la venta
+                </p>
+            </div>
+
             {/* Tallas */}
             <div className="space-y-2">
                 <label className="block text-sm font-medium text-gray-700">
