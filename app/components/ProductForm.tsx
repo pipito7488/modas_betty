@@ -54,7 +54,6 @@ export default function ProductForm({ product, isEdit = false }: ProductFormProp
     });
 
     const [useVariants, setUseVariants] = useState(product?.variants?.length > 0 || false);
-    const [newColor, setNewColor] = useState('');
 
     // Calcular precio base y precio final
     const costPrice = parseFloat(formData.costPrice) || 0;
@@ -135,20 +134,12 @@ export default function ProductForm({ product, isEdit = false }: ProductFormProp
         }));
     };
 
-    const addColor = () => {
-        if (newColor.trim() && !formData.colors.includes(newColor.trim())) {
-            setFormData(prev => ({
-                ...prev,
-                colors: [...prev.colors, newColor.trim()]
-            }));
-            setNewColor('');
-        }
-    };
-
-    const removeColor = (color: string) => {
+    const toggleColor = (color: string) => {
         setFormData(prev => ({
             ...prev,
-            colors: prev.colors.filter((c: string) => c !== color)
+            colors: prev.colors.includes(color)
+                ? prev.colors.filter((c: string) => c !== color)
+                : [...prev.colors, color]
         }));
     };
 
@@ -361,35 +352,23 @@ export default function ProductForm({ product, isEdit = false }: ProductFormProp
                 </div>
             </div>
 
-            {/* Stock */}
-            <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Stock *
-                </label>
-                <input
-                    type="number"
-                    required
-                    min="0"
-                    value={formData.stock}
-                    onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
-                />
-            </div>
-
             {/* Tallas */}
-            <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Tallas Disponibles
+            <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">
+                    Tallas Disponibles *
                 </label>
+                <p className="text-sm text-gray-600">
+                    Selecciona todas las tallas que ofreces
+                </p>
                 <div className="flex flex-wrap gap-2">
-                    {sizes.map((size) => (
+                    {AVAILABLE_SIZES.map((size) => (
                         <button
                             key={size}
                             type="button"
                             onClick={() => toggleSize(size)}
-                            className={`px-4 py-2 rounded-lg border-2 transition-colors ${formData.sizes.includes(size)
-                                ? 'border-amber-500 bg-amber-50 text-amber-700'
-                                : 'border-gray-300 bg-white text-gray-700 hover:border-amber-300'
+                            className={`px-4 py-2 rounded-lg border-2 font-medium transition-all ${formData.sizes.includes(size)
+                                ? 'border-amber-500 bg-amber-50 text-amber-700 shadow-sm'
+                                : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400'
                                 }`}
                         >
                             {size}
@@ -399,44 +378,57 @@ export default function ProductForm({ product, isEdit = false }: ProductFormProp
             </div>
 
             {/* Colores */}
-            <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Colores Disponibles
+            <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">
+                    Colores Disponibles *
                 </label>
-                <div className="flex gap-2 mb-2">
-                    <input
-                        type="text"
-                        value={newColor}
-                        onChange={(e) => setNewColor(e.target.value)}
-                        onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addColor())}
-                        className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
-                        placeholder="Ej: Rojo, Azul, Verde"
-                    />
-                    <button
-                        type="button"
-                        onClick={addColor}
-                        className="px-4 py-2 bg-amber-700 text-white rounded-lg hover:bg-amber-800"
-                    >
-                        Agregar
-                    </button>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                    {formData.colors.map((color: string) => (
-                        <span
-                            key={color}
-                            className="inline-flex items-center gap-2 px-3 py-1 bg-gray-100 rounded-full"
-                        >
-                            {color}
+                <p className="text-sm text-gray-600 mb-3">
+                    Selecciona todos los colores disponibles para este producto
+                </p>
+                <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
+                    {AVAILABLE_COLORS.map((color) => {
+                        const isSelected = formData.colors.includes(color);
+                        const colorHex = COLOR_HEX_MAP[color];
+                        const isGradient = colorHex?.startsWith('linear') || colorHex?.startsWith('repeating');
+
+                        return (
                             <button
+                                key={color}
                                 type="button"
-                                onClick={() => removeColor(color)}
-                                className="text-red-600 hover:text-red-800"
+                                onClick={() => toggleColor(color)}
+                                className={`relative p-2 rounded-lg border-2 transition-all ${isSelected
+                                    ? 'border-amber-500 ring-2 ring-amber-200 shadow-md'
+                                    : 'border-gray-300 hover:border-gray-400'
+                                    }`}
+                                title={color}
                             >
-                                ×
+                                <div
+                                    className="w-full h-10 rounded mb-1 border border-gray-200"
+                                    style={isGradient ? { background: colorHex } : { backgroundColor: colorHex }}
+                                />
+                                <p className={`text-xs text-center truncate ${isSelected ? 'font-semibold text-amber-700' : 'text-gray-600'
+                                    }`}>
+                                    {color}
+                                </p>
+                                {isSelected && (
+                                    <div className="absolute -top-1 -right-1 w-6 h-6 bg-amber-500 rounded-full flex items-center justify-center shadow-sm">
+                                        <span className="text-white text-xs font-bold">✓</span>
+                                    </div>
+                                )}
                             </button>
-                        </span>
-                    ))}
+                        );
+                    })}
                 </div>
+            </div>
+
+            {/* Gestor de Variantes */}
+            <div className="bg-gradient-to-br from-gray-50 to-gray-100 p-6 rounded-xl border-2 border-gray-200">
+                <VariantsManager
+                    variants={formData.variants}
+                    onChange={(variants) => setFormData({ ...formData, variants })}
+                    selectedSizes={formData.sizes}
+                    selectedColors={formData.colors}
+                />
             </div>
 
             {/* Imágenes */}
