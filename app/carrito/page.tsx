@@ -1,7 +1,7 @@
 // app/carrito/page.tsx
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
@@ -83,7 +83,8 @@ export default function CartPage() {
         }
     };
 
-    const calculateShippingForAllVendors = async () => {
+
+    const calculateShippingForAllVendors = useCallback(async () => {
         const newShipping: VendorShipping = {};
 
         for (const group of groupedByVendor) {
@@ -138,7 +139,7 @@ export default function CartPage() {
                 }));
             }
         }
-    };
+    }, [groupedByVendor, userAddress]);
 
     const handleShippingSelection = (vendorId: string, option: ShippingOption) => {
         setShippingByVendor(prev => ({
