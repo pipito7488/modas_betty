@@ -14,7 +14,7 @@ const shippingZoneSchema = new mongoose.Schema({
     },
     type: {
         type: String,
-        enum: ['commune', 'metro_station', 'custom_area'],
+        enum: ['commune', 'metro', 'custom'],
         required: [true, "El tipo de zona es requerido"]
     },
 
@@ -28,23 +28,22 @@ const shippingZoneSchema = new mongoose.Schema({
         trim: true
     },
 
-    // Para type="metro_station"
+    // Para type="metro"
     metroLine: {
-        type: String,
-        enum: ['L1', 'L2', 'L3', 'L4', 'L5', 'L6', 'L7']
+        type: String
     },
     metroStation: {
         type: String,
         trim: true
     },
 
-    // Para type="custom_area"
+    // Para type="custom"
     customArea: {
         type: String,
         trim: true
     },
 
-    // Costo y tiempos
+    // Costo y tiempos de delivery
     cost: {
         type: Number,
         required: [true, "El costo de envío es requerido"],
@@ -62,15 +61,65 @@ const shippingZoneSchema = new mongoose.Schema({
         default: true
     },
 
-    // Configuración de retiro en tienda (pickup)
+    // === OPCIONES DE RETIRO/ENCUENTRO ===
+
+    // 1. Retiro en Tienda (dirección fija del vendedor)
+    pickupStoreAvailable: {
+        type: Boolean,
+        default: false
+    },
+    pickupStoreCost: {
+        type: Number,
+        default: 0,
+        min: [0, "El costo de retiro no puede ser negativo"]
+    },
+    pickupStoreAddress: {
+        street: String,
+        commune: String,
+        region: String,
+        instructions: String
+    },
+
+    // 2. Punto de Encuentro (metro, lugares públicos)
+    meetingPointAvailable: {
+        type: Boolean,
+        default: false
+    },
+    meetingPointCost: {
+        type: Number,
+        default: 0,
+        min: [0, "El costo de punto de encuentro no puede ser negativo"]
+    },
+    meetingPointLocation: {
+        name: String, // Ej: "Metro Baquedano", "Plaza de Armas"
+        description: String,
+        commune: String,
+        region: String
+    },
+
+    // 3. Coordinar con Vendedor (flexible - muestra datos del vendedor)
+    coordinateAvailable: {
+        type: Boolean,
+        default: false
+    },
+    coordinateCost: {
+        type: Number,
+        default: 0,
+        min: [0, "El costo de coordinación no puede ser negativo"]
+    },
+    coordinateInstructions: {
+        type: String,
+        default: "Contacta al vendedor para coordinar lugar y horario de entrega"
+    },
+
+    // LEGACY: mantener compatibilidad con código antiguo
     pickupAvailable: {
         type: Boolean,
         default: false
     },
     pickupCost: {
         type: Number,
-        default: 0,
-        min: [0, "El costo de pickup no puede ser negativo"]
+        default: 0
     },
     pickupAddress: {
         street: String,
@@ -78,29 +127,14 @@ const shippingZoneSchema = new mongoose.Schema({
         region: String,
         instructions: String
     }
-
 }, {
     timestamps: true
 });
 
-// Índices para búsquedas eficientes
+// Índices
 shippingZoneSchema.index({ vendor: 1, enabled: 1 });
 shippingZoneSchema.index({ commune: 1, region: 1 });
 shippingZoneSchema.index({ type: 1 });
-
-// Validación personalizada
-shippingZoneSchema.pre('save', function (next) {
-    // Validar que los campos requeridos según el tipo estén presentes
-    if (this.type === 'commune' && (!this.commune || !this.region)) {
-        next(new Error('Comuna y región son requeridos para zonas tipo "commune"'));
-    } else if (this.type === 'metro_station' && (!this.metroLine || !this.metroStation)) {
-        next(new Error('Línea y estación de metro son requeridos para zonas tipo "metro_station"'));
-    } else if (this.type === 'custom_area' && !this.customArea) {
-        next(new Error('Descripción de área es requerida para zonas tipo "custom_area"'));
-    } else {
-        next();
-    }
-});
 
 const ShippingZone = mongoose.models.ShippingZone || mongoose.model("ShippingZone", shippingZoneSchema);
 
