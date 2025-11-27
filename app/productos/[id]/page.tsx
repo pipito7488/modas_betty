@@ -95,6 +95,20 @@ export default function ProductDetailPage() {
 
             const data = await response.json();
 
+            if (!response.ok) {
+                throw new Error(data.error || 'Error al agregar al carrito');
+            }
+
+            // Mostrar mensaje de éxito
+            alert('✅ Producto agregado al carrito');
+
+            // Disparar evento para recargar el carrito
+            window.dispatchEvent(new Event('cartUpdated'));
+
+        } catch (error) {
+            console.error('Error adding to cart:', error);
+            alert(error instanceof Error ? error.message : 'Error al agregar al carrito');
+        } finally {
             setAddingToCart(false);
         }
     };
@@ -287,6 +301,30 @@ export default function ProductDetailPage() {
                                     +
                                 </button>
                             </div>
+                        </div>
+
+                        {/* Add to Cart Button */}
+                        <button
+                            onClick={handleAddToCart}
+                            disabled={isOutOfStock || addingToCart}
+                            className={`w-full py-4 rounded-lg font-semibold uppercase tracking-wider flex items-center justify-center gap-2 transition-all ${isOutOfStock || addingToCart
+                                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                    : 'bg-amber-700 text-white hover:bg-amber-800 shadow-lg hover:shadow-xl'
+                                }`}
+                        >
+                            {isOutOfStock ? (
+                                'Agotado'
+                            ) : addingToCart ? (
+                                <>
+                                    <Loader2 className="w-5 h-5 animate-spin" />
+                                    Agregando...
+                                </>
+                            ) : (
+                                <>
+                                    <ShoppingBag className="w-5 h-5" />
+                                    Añadir al Carrito
+                                </>
+                            )}
                         </button>
 
                         {/* Product Features */}

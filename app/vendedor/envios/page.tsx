@@ -52,7 +52,7 @@ export default function ShippingPage() {
         metroStation: '',
         customArea: '',
         cost: 0,
-        estimated Days: 3,
+        estimatedDays: 3,
         enabled: true,
         pickupAvailable: false,
         pickupCost: 0,
@@ -130,7 +130,12 @@ export default function ShippingPage() {
             enabled: zone.enabled,
             pickupAvailable: zone.pickupAvailable,
             pickupCost: zone.pickupCost || 0,
-            pickupAddress: zone.pickupAddress || {
+            pickupAddress: zone.pickupAddress ? {
+                street: zone.pickupAddress.street || '',
+                commune: zone.pickupAddress.commune || '',
+                region: zone.pickupAddress.region || '',
+                instructions: zone.pickupAddress.instructions || ''
+            } : {
                 street: '',
                 commune: '',
                 region: '',
@@ -235,8 +240,8 @@ export default function ShippingPage() {
                                                 {zone.name}
                                             </h3>
                                             <span className={`px-2 py-1 text-xs rounded-full ${zone.enabled
-                                                    ? 'bg-green-100 text-green-700'
-                                                    : 'bg-gray-100 text-gray-600'
+                                                ? 'bg-green-100 text-green-700'
+                                                : 'bg-gray-100 text-gray-600'
                                                 }`}>
                                                 {zone.enabled ? 'Activa' : 'Inactiva'}
                                             </span>
