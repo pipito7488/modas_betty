@@ -111,6 +111,11 @@ export async function POST(req: Request) {
                 phones: vendor.phones?.map((p: any) => p.number) || []
             };
 
+            // Calcular comisiones
+            const vendorCommissionRate = vendor.commission || 0;
+            const commissionAmount = (total * vendorCommissionRate) / 100;
+            const vendorNetAmount = total - commissionAmount;
+
             // Crear orden
             const order = await Order.create({
                 user: session.user.id,
@@ -119,6 +124,9 @@ export async function POST(req: Request) {
                 subtotal,
                 shippingCost,
                 total,
+                vendorCommissionRate,
+                commissionAmount,
+                vendorNetAmount,
                 status: 'pending_payment',
                 shippingMethod,
                 shippingAddress,

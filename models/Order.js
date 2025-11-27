@@ -59,6 +59,22 @@ const orderSchema = new mongoose.Schema({
     min: 0
   },
 
+  // Comisiones (calculadas automáticamente)
+  vendorCommissionRate: {
+    type: Number,
+    default: 0,
+    min: 0,
+    max: 100
+  },
+  commissionAmount: {
+    type: Number,
+    default: 0
+  },
+  vendorNetAmount: {
+    type: Number,
+    default: 0
+  },
+
   // Estado de la orden
   status: {
     type: String,
