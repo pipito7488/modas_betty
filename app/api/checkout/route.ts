@@ -145,17 +145,17 @@ export async function POST(req: Request) {
                 vendorCommissionRate,
                 commissionAmount,
                 vendorNetAmount,
-                status: 'pending_payment',
+                status: 'payment_pending', // Corregido: era 'pending_payment'
                 shippingMethod,
                 shippingZone: shippingZone?._id || null,
                 shippingAddress,
                 pickupAddress,
-                customerContact: {
-                    phone: customerPhone,
-                    email: session.user.email
-                },
+                // Campos requeridos por el modelo
+                customerName: session.user.name || 'Cliente',
+                customerEmail: session.user.email,
+                customerPhone: customerPhone,
                 vendorContactInfo,
-                paymentMethod: 'bank_transfer',
+                paymentMethod: vendor.paymentMethods?.[0] || {},
                 createdAt: new Date()
             });
 
