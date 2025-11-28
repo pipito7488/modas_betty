@@ -134,8 +134,28 @@ export async function POST(req: Request) {
             const commissionAmount = (total * vendorCommissionRate) / 100;
             const vendorNetAmount = total - commissionAmount;
 
+            // Generar orderNumber manualmente (el pre-save hook no funciona bien en serverless)
+            const date = new Date();
+            const year = date.getFullYear().toString().slice(-2);
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const day = date.getDate().toString().padStart(2, '0');
+
+            // Buscar el último número del día
+            const lastOrder = await Order.findOne({
+                orderNumber: new RegExp(`^${year}${month}${day}`)
+            }).sort({ orderNumber: -1 });
+
+            let sequence = 1;
+            if (lastOrder) {
+                const lastSequence = parseInt(lastOrder.orderNumber.slice(-4));
+                sequence = lastSequence + 1;
+            }
+
+            const orderNumber = `${year}${month}${day}${sequence.toString().padStart(4, '0')}`;
+
             // Crear orden
             const order = await Order.create({
+                orderNumber, // Generar manualmente
                 user: session.user.id,
                 vendor: vendorId,
                 items: orderItems,
@@ -156,8 +176,6 @@ export async function POST(req: Request) {
                 customerPhone: customerPhone,
                 vendorContactInfo,
                 paymentMethod: vendor.paymentMethods?.[0] || {}
-                // orderNumber se genera automáticamente por el pre-save hook
-                // createdAt se genera automáticamente por timestamps: true
             });
 
             createdOrders.push({
