@@ -127,7 +127,7 @@ export default function VendorOrdersPage() {
             const res = await fetch('/api/vendedor/orders');
             if (res.ok) {
                 const data = await res.json();
-                setOrders(data);
+                setOrders(data.orders || data); // Support both formats
             }
         } catch (error) {
             console.error('Error loading orders:', error);
