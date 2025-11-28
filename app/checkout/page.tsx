@@ -122,12 +122,14 @@ export default function CheckoutPage() {
                 })
             });
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Error al crear la orden');
-            }
-
             const data = await response.json();
+
+            if (!response.ok) {
+                // Mostrar error detallado del servidor
+                const errorMsg = data.details || data.error || 'Error al crear la orden';
+                console.error('Error del servidor:', data);
+                throw new Error(errorMsg);
+            }
 
             // Limpiar sessionStorage
             sessionStorage.removeItem('cart_shipping');
