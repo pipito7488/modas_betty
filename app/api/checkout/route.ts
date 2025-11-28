@@ -3,9 +3,9 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from '@/lib/auth';
 import mongoose from 'mongoose';
 import '@/models/Product'; // Asegurar registro del modelo
-import '@/models/User';    // Asegurar registro del modelo
 import Cart from '@/models/Cart';
 import Order from '@/models/Order';
+import User from '@/models/User';
 import ShippingZone from '@/models/ShippingZone';
 
 /**
