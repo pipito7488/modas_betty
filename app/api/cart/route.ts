@@ -25,7 +25,7 @@ export async function GET() {
         // Buscar carrito del usuario
         let cart = await Cart.findOne({ user: session.user.id })
             .populate('items.product')
-            .populate('items.vendor', 'name email');
+            .populate('items.vendor', 'name email paymentMethods');
 
         if (!cart) {
             // Crear carrito vacío si no existe
@@ -141,7 +141,7 @@ export async function POST(req: Request) {
 
         // Repoblar para devolver datos completos
         await cart.populate('items.product');
-        await cart.populate('items.vendor', 'name email');
+        await cart.populate('items.vendor', 'name email paymentMethods');
 
         return NextResponse.json({
             message: 'Producto agregado al carrito',
