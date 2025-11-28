@@ -128,8 +128,7 @@ export default function Header() {
                         <nav className="flex flex-col gap-2 py-4 border-t border-gray-100">
                             {[
                                 { name: 'Productos', href: '/productos' },
-                                { name: 'Nosotros', href: '/about' },
-                                { name: 'Contacto', href: '/contact' },
+                                { name: 'FAQ', href: '/faq' },
                             ].map((item) => (
                                 <Link
                                     key={item.name}
