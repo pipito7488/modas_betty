@@ -125,14 +125,26 @@ export default function VendorOrdersPage() {
     const loadOrders = async () => {
         try {
             const res = await fetch('/api/vendedor/orders');
+            console.log('API Response status:', res.status);
+
             if (res.ok) {
                 const data = await res.json();
+                console.log('API Response data:', data);
+                console.log('Type of data:', typeof data);
+                console.log('Type of data.orders:', typeof data.orders);
+
                 // Ensure we always set an array
                 const ordersArray = data.orders || data || [];
+                console.log('Orders array length:', Array.isArray(ordersArray) ? ordersArray.length : 'NOT AN ARRAY');
+
                 setOrders(Array.isArray(ordersArray) ? ordersArray : []);
+            } else {
+                console.error('API error:', res.status, res.statusText);
+                setOrders([]);
             }
         } catch (error) {
             console.error('Error loading orders:', error);
+            setOrders([]);
         } finally {
             setLoading(false);
         }

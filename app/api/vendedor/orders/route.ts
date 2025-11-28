@@ -32,7 +32,12 @@ export async function GET(req: Request) {
             .populate('user', 'name email')
             .sort({ createdAt: -1 });
 
-        return NextResponse.json({ orders });
+        console.log('Vendedor orders fetched:', orders.length);
+
+        // Ensure we always return an array
+        const ordersArray = Array.isArray(orders) ? orders : [];
+
+        return NextResponse.json({ orders: ordersArray });
 
     } catch (error) {
         console.error('Error fetching vendor orders:', error);
