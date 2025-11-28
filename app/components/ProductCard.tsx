@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Heart, ShoppingBag, Clock } from 'lucide-react';
+import { Heart, Clock } from 'lucide-react';
 
 interface Product {
   _id: string;
@@ -112,8 +112,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             object-cover object-center 
             transition-all duration-700 ease-out
             group-hover:scale-110
-            ${isImageLoaded ? 'opacity-100' : 'opacity-0'}
-          `}
+            ${isImageLoaded ? 'opacity-100' : 'opacity-0'} `}
           onLoad={() => setIsImageLoaded(true)}
           sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
         />
@@ -204,23 +203,6 @@ export default function ProductCard({ product }: ProductCardProps) {
             )}
           </div>
         </div>
-
-        {/* Botón de Agregar al Carrito */}
-        <button
-          disabled={isOutOfStock}
-          className={`
-            w-full mt-3 py-2.5 text-sm font-medium uppercase tracking-wider
-            flex items-center justify-center gap-2
-            transition-all duration-300 rounded-lg
-            ${isOutOfStock
-              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              : 'bg-gray-900 text-white hover:bg-amber-700'
-            }
-          `}
-        >
-          <ShoppingBag className="w-4 h-4" />
-          {isOutOfStock ? 'Agotado' : 'Añadir al Carrito'}
-        </button>
       </div>
     </div>
   );
