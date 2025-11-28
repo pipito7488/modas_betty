@@ -344,7 +344,7 @@ export default function VendorOrdersPage() {
                     </div>
                 ) : (
                     <div className="space-y-6">
-                        {filteredOrders.map((order) => {
+                        {Array.isArray(filteredOrders) && filteredOrders.map((order) => {
                             const statusInfo = getStatusConfig(order.status);
                             const StatusIcon = statusInfo.icon;
 
@@ -397,7 +397,7 @@ export default function VendorOrdersPage() {
                                         <div className="mb-6">
                                             <h4 className="font-semibold text-gray-900 mb-3">Productos</h4>
                                             <div className="space-y-3">
-                                                {order.items.map((item, idx) => (
+                                                {Array.isArray(order.items) && order.items.map((item, idx) => (
                                                     <div key={idx} className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg">
                                                         <div className="flex-shrink-0 w-16 h-16 bg-gray-100 rounded-lg overflow-hidden">
                                                             {item.image ? (
