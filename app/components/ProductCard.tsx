@@ -200,8 +200,6 @@ export default function ProductCard({ product }: ProductCardProps) {
             ) : (
 import Link from 'next/link';
 import { Heart, ShoppingBag, Clock } from 'lucide-react';
-import { useState, useEffect } from 'react'; // Added missing imports for useState and useEffect
-import Image from 'next/image'; // Added missing import for Image
 
 interface Product {
   _id: string;
