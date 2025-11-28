@@ -25,7 +25,7 @@ export async function GET(req: Request) {
             .populate('vendor', 'name email')
             .sort({ createdAt: -1 });
 
-        return NextResponse.json(orders);
+        return NextResponse.json({ orders });
 
     } catch (error) {
         console.error('Error fetching orders:', error);
