@@ -8,6 +8,7 @@ import ImageUpload from './ImageUpload';
 import VariantsManager from './VariantsManager';
 import { Loader2, Save, DollarSign, Percent, Calendar, Eye, EyeOff } from 'lucide-react';
 import { AVAILABLE_COLORS, AVAILABLE_SIZES, COLOR_HEX_MAP } from '@/lib/productConstants';
+import ErrorMessage from './ErrorMessage';
 
 interface ProductFormProps {
     product?: any;
@@ -27,11 +28,17 @@ const formatCLP = (value: number) => {
     }).format(value);
 };
 
+interface ValidationError {
+    title: string;
+    message: string;
+    tip?: string;
+}
+
 export default function ProductForm({ product, isEdit = false }: ProductFormProps) {
     const router = useRouter();
     const { data: session } = useSession();
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
+    const [error, setError] = useState<ValidationError | null>(null);
 
     const [formData, setFormData] = useState({
         name: product?.name || '',
@@ -65,23 +72,51 @@ export default function ProductForm({ product, isEdit = false }: ProductFormProp
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setError('');
+        setError(null);
         setLoading(true);
 
         try {
-            // Validaciones
+            // Validaciones mejoradas con mensajes específicos
             if (!formData.name || !formData.description || !formData.costPrice || !formData.stock) {
-                throw new Error('Por favor completa todos los campos requeridos');
+                throw {
+                    title: 'Campos Requeridos Faltantes',
+                    message: 'Por favor completa todos los campos marcados con asterisco (*)',
+                    tip: 'Los campos obligatorios son: nombre, descripción, precio de costo y stock'
+                };
             }
 
             if (formData.images.length === 0) {
-                throw new Error('Debes subir al menos una imagen');
+                throw {
+                    title: 'Imágenes Requeridas',
+                    message: 'Agrega al menos una foto de tu producto para que los clientes puedan verlo',
+                    tip: '💡 Usa fotos claras con buena iluminación. Las fotos de alta calidad generan más ventas'
+                };
+            }
+
+            if (formData.sizes.length === 0) {
+                throw {
+                    title: 'Tallas Requeridas',
+                    message: 'Selecciona al menos una talla disponible para tu producto',
+                    tip: '💡 Si tu producto no tiene tallas específicas, selecciona "Talla Única"'
+                };
+            }
+
+            if (formData.colors.length === 0) {
+                throw {
+                    title: 'Colores Requeridos',
+                    message: 'Selecciona al menos un color disponible para tu producto',
+                    tip: '💡 Asegúrate de que los colores coincidan con las fotos del producto'
+                };
             }
 
             // Validar fechas de oferta
             if (formData.discountStartDate && formData.discountEndDate) {
                 if (new Date(formData.discountEndDate) <= new Date(formData.discountStartDate)) {
-                    throw new Error('La fecha de fin de la oferta debe ser posterior a la fecha de inicio');
+                    throw {
+                        title: 'Fechas de Oferta Inválidas',
+                        message: 'La fecha de fin de la oferta debe ser posterior a la fecha de inicio',
+                        tip: '💡 Ejemplo: Inicio hoy a las 00:00, Fin en 7 días a las 23:59'
+                    };
                 }
             }
 
@@ -108,7 +143,11 @@ export default function ProductForm({ product, isEdit = false }: ProductFormProp
 
             if (!response.ok) {
                 const data = await response.json();
-                throw new Error(data.error || 'Error al guardar el producto');
+                throw {
+                    title: 'Error al Guardar',
+                    message: data.error || 'No se pudo guardar el producto. Intenta de nuevo',
+                    tip: data.details || 'Si el problema persiste, contacta con soporte'
+                };
             }
 
             // Redirigir según el rol del usuario
@@ -118,8 +157,16 @@ export default function ProductForm({ product, isEdit = false }: ProductFormProp
 
             router.push(redirectPath);
             router.refresh();
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'Error desconocido');
+        } catch (err: any) {
+            if (err.title && err.message) {
+                setError(err);
+            } else {
+                setError({
+                    title: 'Error Inesperado',
+                    message: err instanceof Error ? err.message : 'Ocurrió un error desconocido',
+                    tip: 'Intenta de nuevo o contacta con soporte si el problema persiste'
+                });
+            }
         } finally {
             setLoading(false);
         }
@@ -146,9 +193,11 @@ export default function ProductForm({ product, isEdit = false }: ProductFormProp
     return (
         <form onSubmit={handleSubmit} className="space-y-8">
             {error && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-                    {error}
-                </div>
+                <ErrorMessage
+                    title={error.title}
+                    message={error.message}
+                    tip={error.tip}
+                />
             )}
 
             {/* Información Básica */}

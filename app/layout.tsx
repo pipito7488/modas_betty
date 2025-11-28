@@ -5,6 +5,7 @@ import SessionProvider from '@/app/components/SessionProvider';
 import { CartProvider } from '@/contexts/CartContext';
 import Header from '@/app/components/Header';
 import Footer from '@/app/components/Footer';
+import { ToastProvider } from '@/app/components/ToastContainer';
 
 export const metadata = {
   title: 'Betty Modas - Elegancia Atemporal',
@@ -23,9 +24,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               enableSystem
               disableTransitionOnChange
             >
-              <Header />
-              {children}
-              <Footer />
+              <ToastProvider>
+                <Header />
+                {children}
+                <Footer />
+              </ToastProvider>
             </ThemeProvider>
           </CartProvider>
         </SessionProvider>
