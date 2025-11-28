@@ -2,10 +2,10 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from '@/lib/auth';
 import mongoose from 'mongoose';
+import '@/models/Product'; // Asegurar registro del modelo
+import '@/models/User';    // Asegurar registro del modelo
 import Cart from '@/models/Cart';
 import Order from '@/models/Order';
-import Product from '@/models/Product';
-import User from '@/models/User';
 import ShippingZone from '@/models/ShippingZone';
 
 /**
@@ -145,7 +145,7 @@ export async function POST(req: Request) {
                 vendorCommissionRate,
                 commissionAmount,
                 vendorNetAmount,
-                status: 'payment_pending', // Corregido: era 'pending_payment'
+                status: 'payment_pending',
                 shippingMethod,
                 shippingZone: shippingZone?._id || null,
                 shippingAddress,
@@ -155,8 +155,9 @@ export async function POST(req: Request) {
                 customerEmail: session.user.email,
                 customerPhone: customerPhone,
                 vendorContactInfo,
-                paymentMethod: vendor.paymentMethods?.[0] || {},
-                createdAt: new Date()
+                paymentMethod: vendor.paymentMethods?.[0] || {}
+                // orderNumber se genera automáticamente por el pre-save hook
+                // createdAt se genera automáticamente por timestamps: true
             });
 
             createdOrders.push({
