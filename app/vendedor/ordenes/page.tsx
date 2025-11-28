@@ -53,21 +53,21 @@ const statusConfig: Record<string, { label: string; color: string; icon: any; bg
         bgClass: 'bg-yellow-100',
         textClass: 'text-yellow-800'
     },
-    payment_submitted: {
+    payment_pending: {
         label: 'Pago Pendiente',
         color: 'blue',
         icon: Upload,
         bgClass: 'bg-blue-100',
         textClass: 'text-blue-800'
     },
-    payment_confirmed: {
+    confirmed: {
         label: 'Pago Confirmado',
         color: 'green',
         icon: CheckCircle,
         bgClass: 'bg-green-100',
         textClass: 'text-green-800'
     },
-    processing: {
+    preparing: {
         label: 'En Preparación',
         color: 'purple',
         icon: Package,
@@ -204,8 +204,8 @@ export default function VendorOrdersPage() {
     });
 
     const stats = {
-        pending: orders.filter(o => o.status === 'payment_submitted').length,
-        confirmed: orders.filter(o => o.status === 'payment_confirmed' || o.status === 'processing').length,
+        pending: orders.filter(o => o.status === 'payment_pending').length,
+        confirmed: orders.filter(o => o.status === 'confirmed' || o.status === 'preparing').length,
         shipped: orders.filter(o => o.status === 'shipped').length,
         total: orders.length
     };
@@ -305,9 +305,9 @@ export default function VendorOrdersPage() {
                         >
                             <option value="all">Todos los estados</option>
                             <option value="pending_payment">Pendiente de Pago</option>
-                            <option value="payment_submitted">Pago Pendiente</option>
-                            <option value="payment_confirmed">Pago Confirmado</option>
-                            <option value="processing">En Preparación</option>
+                            <option value="payment_pending">Pago Pendiente</option>
+                            <option value="confirmed">Pago Confirmado</option>
+                            <option value="preparing">En Preparación</option>
                             <option value="shipped">Enviado</option>
                             <option value="delivered">Entregado</option>
                             <option value="cancelled">Cancelado</option>
@@ -450,7 +450,7 @@ export default function VendorOrdersPage() {
                                         </div>
 
                                         {/* Payment Proof */}
-                                        {order.status === 'payment_submitted' && order.paymentProof && (
+                                        {order.status === 'payment_pending' && order.paymentProof && (
                                             <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
                                                 <div className="flex items-center justify-between mb-2">
                                                     <h5 className="font-semibold text-gray-900 flex items-center gap-2">
@@ -491,10 +491,10 @@ export default function VendorOrdersPage() {
                                         )}
 
                                         {/* Actions */}
-                                        {order.status === 'payment_confirmed' && (
+                                        {order.status === 'confirmed' && (
                                             <div className="flex gap-3">
                                                 <button
-                                                    onClick={() => handleUpdateStatus(order._id, 'processing')}
+                                                    onClick={() => handleUpdateStatus(order._id, 'preparing')}
                                                     disabled={processingOrder === order._id}
                                                     className="flex-1 bg-purple-600 text-white py-3 rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50"
                                                 >
@@ -503,7 +503,7 @@ export default function VendorOrdersPage() {
                                             </div>
                                         )}
 
-                                        {order.status === 'processing' && (
+                                        {order.status === 'preparing' && (
                                             <div className="flex gap-3">
                                                 <button
                                                     onClick={() => handleUpdateStatus(order._id, 'shipped')}
