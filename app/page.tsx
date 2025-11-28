@@ -140,48 +140,92 @@ export default function HomePage() {
                 </section>
             )}
 
-            {/* Value Proposition */}
-            <section className="py-28 bg-gradient-to-br from-gray-50 to-gray-100">
-                <div className="container mx-auto px-4 max-w-7xl">
-                    <div className="grid md:grid-cols-3 gap-16">
-                        <div className="text-center group animate-fade-in-up">
-                            <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-amber-600 to-amber-500 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
-                                <Check className="w-10 h-10 text-white" />
-                            </div>
-                            <h3 className="font-headline text-2xl font-semibold mb-4 text-gray-900">
-                                Calidad Premium
-                            </h3>
-                            <p className="text-gray-600 leading-relaxed">
-                                Prendas seleccionadas con tejidos de la más alta calidad
+            {/* Product Carousel */}
+            {!loading && featuredProducts.length > 0 && (
+                <section className="py-24 bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden">
+                    <div className="container mx-auto px-4 max-w-7xl">
+                        <div className="text-center mb-12 animate-fade-in-up">
+                            <h2 className="font-headline text-4xl md:text-5xl font-semibold mb-3 text-gray-900">
+                                Descubre Más
+                            </h2>
+                            <p className="text-gray-600 text-lg">
+                                Explora nuestra colección exclusiva
                             </p>
                         </div>
 
-                        <div className="text-center group animate-fade-in-up animation-delay-200">
-                            <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-amber-600 to-amber-500 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
-                                <Truck className="w-10 h-10 text-white" />
+                        {/* Horizontal Scrolling Container */}
+                        <div className="relative">
+                            {/* Gradient Fade on edges */}
+                            <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-gray-50 to-transparent z-10 pointer-events-none" />
+                            <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-gray-100 to-transparent z-10 pointer-events-none" />
+
+                            <div className="flex gap-6 overflow-x-auto pb-6 snap-x snap-mandatory scrollbar-hide"
+                                style={{
+                                    scrollbarWidth: 'none',
+                                    msOverflowStyle: 'none',
+                                    WebkitOverflowScrolling: 'touch'
+                                }}>
+                                {featuredProducts.map((product, index) => (
+                                    <Link
+                                        key={product._id}
+                                        href={`/productos/${product._id}`}
+                                        className="flex-shrink-0 w-[280px] sm:w-[320px] group relative block overflow-hidden bg-white shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 snap-center"
+                                    >
+                                        <div className="relative aspect-[3/4] overflow-hidden bg-gray-100">
+                                            {product.imagenes && product.imagenes.length > 0 ? (
+                                                <img
+                                                    src={product.imagenes[0]}
+                                                    alt={product.nombre}
+                                                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                                                />
+                                            ) : (
+                                                <div className="w-full h-full flex items-center justify-center text-gray-400">
+                                                    <Sparkles className="w-16 h-16" />
+                                                </div>
+                                            )}
+
+                                            {/* Overlay on hover */}
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-6">
+                                                <span className="text-white font-semibold uppercase text-sm tracking-wider">
+                                                    Ver Detalles
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div className="p-5">
+                                            <h3 className="font-semibold text-lg mb-2 text-gray-900 line-clamp-1 group-hover:text-amber-700 transition-colors">
+                                                {product.nombre}
+                                            </h3>
+                                            <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+                                                {product.descripcion}
+                                            </p>
+                                            <div className="flex items-center justify-between">
+                                                <p className="text-2xl font-bold text-amber-700">
+                                                    ${product.precio.toLocaleString('es-CL')}
+                                                </p>
+                                                <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center group-hover:bg-amber-600 transition-colors duration-300">
+                                                    <Sparkles className="w-5 h-5 text-amber-700 group-hover:text-white transition-colors duration-300" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </Link>
+                                ))}
                             </div>
-                            <h3 className="font-headline text-2xl font-semibold mb-4 text-gray-900">
-                                Envío a Todo Chile
-                            </h3>
-                            <p className="text-gray-600 leading-relaxed">
-                                Despacho a todo el país con múltiples opciones de entrega
-                            </p>
                         </div>
 
-                        <div className="text-center group animate-fade-in-up animation-delay-400">
-                            <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-amber-600 to-amber-500 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
-                                <Shield className="w-10 h-10 text-white" />
-                            </div>
-                            <h3 className="font-headline text-2xl font-semibold mb-4 text-gray-900">
-                                Compra Segura
-                            </h3>
-                            <p className="text-gray-600 leading-relaxed">
-                                Transacciones protegidas y atención personalizada
-                            </p>
+                        {/* Scroll Hint */}
+                        <div className="text-center mt-8 text-gray-500 text-sm animate-fade-in-up animation-delay-400">
+                            <p>← Desliza para ver más →</p>
                         </div>
                     </div>
-                </div>
-            </section>
+
+                    <style jsx>{`
+                        .scrollbar-hide::-webkit-scrollbar {
+                            display: none;
+                        }
+                    `}</style>
+                </section>
+            )}
 
             {/* CTA Section */}
             <section className="relative py-32 bg-gray-900 text-white overflow-hidden">
