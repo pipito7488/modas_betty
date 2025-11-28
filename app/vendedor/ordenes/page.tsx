@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 export default function VendedorOrdenesPage() {
     const router = useRouter();
     const { data: session, status } = useSession();
-    const [orders, setOrders] = useState([]);
+    const [orders, setOrders] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
