@@ -100,7 +100,7 @@ const statusConfig: Record<string, { label: string; color: string; icon: any; bg
 export default function VendorOrdersPage() {
     const router = useRouter();
     const { data: session, status } = useSession();
-    const [orders, setOrders] = useState<Order[]>([]);
+    const [orders, setOrders] = useState<Order[]>([]);  // Initialize as empty array
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
     const [filteredStatus, setFilteredStatus] = useState<string>('all');
@@ -210,18 +210,19 @@ export default function VendorOrdersPage() {
         };
     };
 
-    const filteredOrders = orders.filter((order) => {
+
+    const filteredOrders = Array.isArray(orders) ? orders.filter((order) => {
         const matchesSearch = order.orderNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
             order.user.name.toLowerCase().includes(searchQuery.toLowerCase());
         const matchesStatus = filteredStatus === 'all' || order.status === filteredStatus;
         return matchesSearch && matchesStatus;
-    });
+    }) : [];
 
     const stats = {
-        pending: orders.filter(o => o.status === 'payment_pending').length,
-        confirmed: orders.filter(o => o.status === 'confirmed' || o.status === 'preparing').length,
-        shipped: orders.filter(o => o.status === 'shipped').length,
-        total: orders.length
+        pending: Array.isArray(orders) ? orders.filter(o => o.status === 'payment_pending').length : 0,
+        confirmed: Array.isArray(orders) ? orders.filter(o => o.status === 'confirmed' || o.status === 'preparing').length : 0,
+        shipped: Array.isArray(orders) ? orders.filter(o => o.status === 'shipped').length : 0,
+        total: Array.isArray(orders) ? orders.length : 0
     };
 
     if (status === 'loading' || loading) {
