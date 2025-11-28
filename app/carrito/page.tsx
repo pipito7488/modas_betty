@@ -33,6 +33,7 @@ export default function CartPage() {
 
     const [shippingByVendor, setShippingByVendor] = useState<VendorShipping>({});
     const [userAddress, setUserAddress] = useState<any>(null);
+    const [userPhone, setUserPhone] = useState<string>('');
     const [profileValidation, setProfileValidation] = useState<any>(null);
     const [showProfileModal, setShowProfileModal] = useState(false);
 
@@ -77,6 +78,15 @@ export default function CartPage() {
                 const addresses = Array.isArray(data) ? data : (data.addresses || []);
                 const defaultAddress = addresses.find((a: any) => a.isDefault) || addresses[0];
                 setUserAddress(defaultAddress);
+            }
+
+            // Cargar teléfonos del usuario
+            const phoneRes = await fetch('/api/user/phones');
+            if (phoneRes.ok) {
+                const data = await phoneRes.json();
+                const phones = Array.isArray(data) ? data : (data.phones || []);
+                const defaultPhone = phones.find((p: any) => p.isDefault) || phones[0];
+                setUserPhone(defaultPhone?.number || '');
             }
         } catch (error) {
             console.error('Error loading user data:', error);
@@ -205,8 +215,17 @@ export default function CartPage() {
             return;
         }
 
-        // Guardar selección de envíos en sessionStorage
+        // Guardar datos completos en sessionStorage para el checkout
         sessionStorage.setItem('cart_shipping', JSON.stringify(shippingByVendor));
+        sessionStorage.setItem('cart_data', JSON.stringify({
+            vendors: groupedByVendor,
+            subtotal: getProductsSubtotal(),
+            shippingTotal: getTotalShipping(),
+            grandTotal: getGrandTotal(),
+            userAddress: userAddress,
+            userPhone: userPhone
+        }));
+
         router.push('/checkout');
     };
 
