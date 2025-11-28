@@ -66,7 +66,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
             {/* Overlay */}
             {isOpen && (
                 <div
-                    className="fixed inset-0 bg-black/10 backdrop-blur-sm z-40 transition-all duration-300"
+                    className="fixed inset-0 bg-black/15 backdrop-blur-[2px] z-40 transition-all duration-300"
                     onClick={onClose}
                 />
             )}
