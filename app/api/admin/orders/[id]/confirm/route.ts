@@ -10,9 +10,10 @@ import Order from '@/models/Order';
  */
 export async function POST(
     req: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        const { id } = await params;
         const session = await getServerSession() as any;
 
         if (!session || !session.user?.email || session.user.role !== 'admin') {
@@ -24,7 +25,7 @@ export async function POST(
 
         await mongoose.connect(process.env.MONGODB_URI!);
 
-        const order = await Order.findById(params.id);
+        const order = await Order.findById(id);
 
         if (!order) {
             return NextResponse.json(
