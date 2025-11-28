@@ -314,14 +314,14 @@ export default function AdminOrdenesPage() {
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="flex items-center gap-2">
-                                                {order.status === 'payment_pending' && order.paymentProof && (
+                                                {order.status === 'payment_pending' && (
                                                     <button
                                                         onClick={() => handleConfirmOrder(order._id)}
                                                         disabled={processing === order._id}
                                                         className="inline-flex items-center gap-1 px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700 disabled:opacity-50"
                                                     >
                                                         <CheckCircle className="w-3 h-3" />
-                                                        Confirmar
+                                                        Confirmar Pago
                                                     </button>
                                                 )}
                                                 {(order.status === 'payment_pending' || order.status === 'confirmed') && (
