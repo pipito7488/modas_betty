@@ -6,6 +6,7 @@ import { CartProvider } from '@/contexts/CartContext';
 import Header from '@/app/components/Header';
 import Footer from '@/app/components/Footer';
 import { ToastProvider } from '@/app/components/ToastContainer';
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export const metadata = {
   title: 'Betty Modas - Elegancia Atemporal',
@@ -32,6 +33,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </ThemeProvider>
           </CartProvider>
         </SessionProvider>
+        <SpeedInsights />
       </body>
     </html>
   );
